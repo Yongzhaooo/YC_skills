@@ -70,7 +70,7 @@ Copy-Item -Recurse "C:\workarea\YC_skills\skills\*" "$env:USERPROFILE\.codex\ski
 
 | Skill | 上游来源 | License | 修改内容 |
 |-------|----------|---------|----------|
-| grilling | [superpowers](https://github.com/obra/superpowers) | MIT | 去掉了 handoff envelope、self-feedback 等系统基础设施，保留设计树核心 |
+| grilling | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | 去掉了文件系统备份、agent config 引用。保留设计树、rounds、frontier 核心 |
 | to-spec | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | 去掉了 issue tracker 发布、跨仓库路由、Content Hash。简化为纯合成+本地文件 |
 | to-tickets | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | 去掉了 Goal 控制器、parallel matrix、多仓库路由。保留 tracer-bullet 核心 |
 | run-pilot | 原创 | — | 基于个人在 MyAgents 仓库的 skill 演进实践，不属于上游 |
