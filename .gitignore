@@ -1,0 +1,18 @@
+# OS
+Thumbs.db
+Desktop.ini
+
+# Editor
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Temporary
+*.bak
+*.tmp
