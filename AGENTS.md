@@ -1,20 +1,17 @@
-# Agent Instructions for YC Skills
+# YC Skills 维护规则
 
-These are personal workflow skills for Codex + GPT 5.6 sol subagent mode.
+这里保存个人 Codex 工作流的轻量技能源。它们帮助 Agent 在复杂任务中定位、决策、试验、规划、协作和验证；小而明确的任务应直接完成。
 
-## Skill Loading
+## 使用与边界
 
-Each skill is user-invoked only (no auto-trigger). The user types `/skill-name` to invoke.
+1. 技能可由用户通过 `$skill-name` 明确调用，也可由支持技能路由的 Codex 按任务匹配使用。
+2. 任何技能都不自动授权下一阶段：澄清、试验、规划和实现之间都要等待用户请求或已有明确授权。
+3. 不绑定具体模型、子代理名称或桌面端工具字段；以运行时实际提供的能力为准。
+4. 保持技能短小、可读、可独立使用。新增内容要服务于多个项目的稳定工作流。
 
-## Core Rules
+## 维护原则
 
-1. Do not auto-invoke any of these four skills without the user's explicit command.
-2. Do not chain skills automatically. After `/grilling` completes, do NOT start `/run-pilot` — wait for the user.
-3. These skills assume a Codex environment with subagent support. Adapt terminology (model names, tool names) to the current Codex runtime.
-4. Keep skill bodies concise. Users should read and understand them quickly.
-
-## When NOT to Use These Skills
-
-- If the work is small and obvious, just do it. These skills add planning overhead.
-- If you're exploring or learning, you don't need a spec. Just code.
-- For new project ideas, chat with web GPT first before using grilling.
+- `skills/` 中每个目录都是一个可安装的 skill，入口文件为 `SKILL.md`。
+- 优先更新已有技能；只有稳定且可复用的行为才新增 skill。
+- 任务涉及代码修改时，完成前应使用最贴近改动范围的验证方式。
+- 不要把项目私有路径、凭据、缓存或运行时导出物提交到此仓库。

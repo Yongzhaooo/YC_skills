@@ -75,7 +75,7 @@ Use exactly one primary result:
 
 | Result | Next step |
 |--------|-----------|
-| PASS | Recommend the smallest justified next action — a second pilot, `to-spec`, or handoff. |
+| PASS | Recommend the smallest justified next action — a second pilot, `plan-work`, or handoff. |
 | WEAK | Propose one bounded revision or retest to the user. |
 | FAIL | Stop. Report findings and recommend against the approach. |
 | INVALID | Report the failure mode. Propose a corrected pilot if the hypothesis is still sound. |

@@ -1,80 +1,40 @@
-# YC Skills — 个人 Codex 工作流
+# YC Skills
 
-为 **Codex + GPT 5.6 sol subagent 模式** 调优的个人 skills。
-
-## 适用场景
-
-你有一个编程任务，不确定怎么做，或者做一半发现方向可能不对。这套工具帮你 **先想清楚，再动手**。
+一套面向个人 Codex 开发的轻量工作流技能：先获得事实和决策，再以最小风险实施并用证据交付。它们是可独立取用的工具，不是每个任务都必须经过的流水线。
 
 ## 工作流
 
+```text
+陌生或多文件代码库 ──> $repo-map
+                         │
+方案仍有关键未知 ────────> $grilling ──> $run-pilot（仅在可行性未证实时）
+                         │
+恢复跨任务上下文 ─────────> $wayfinder
+方向已确定 ─────────────> $plan-work ──> 实施（必要时 $delegation-policy） ──> 项目自身的测试流程
 ```
-$grilling     →  明确边界 & 约束（高智能 agent；新项目建议先跟网页版 GPT 聊清楚）
-    ↓
-$run-pilot    →  快速验证一个概念是否可行（最小实现 + 证据）
-    ↓
-$to-spec      →  把已验证的方向固化为 spec 文档
-    ↓
-$to-tickets   →  把 spec 拆成可执行的 tracer-bullet tickets
-    ↓
-开 Thread 执行 →  主 agent（推荐 GPT 5.6 sol HIGH）指挥 sol MEDIUM 子代理逐个执行
-```
+
+## Skills
+
+| Skill | 何时使用 | 简单用法 |
+| --- | --- | --- |
+| `repo-map` | 陌生、多文件或架构敏感的改动，需要先找入口、调用链和测试面。 | `$repo-map 找出支付回调从 HTTP 入口到订单状态更新的路径，并给出可修改边界。` |
+| `grilling` | 方案、边界或取舍尚未说清，希望以成批问题发现隐含假设。 | `$grilling 我想给 CLI 加离线缓存，帮我把决策和约束问清楚。` |
+| `run-pilot` | 在投入完整设计前，先做一个可回滚的小试验验证关键假设。 | `$run-pilot 用冻结的样本验证新的解析器能否达到准确率目标，不改生产入口。` |
+| `plan-work` | 方向已确定，需要写设计说明并拆成可验证的纵向工作项。 | `$plan-work 根据已确认的导入流程，写 spec 并拆成实施计划。` |
+| `delegation-policy` | 需要派发子任务，或需要判断主线程和子代理各自应负责什么。 | `$delegation-policy 把这项迁移拆成可并行的调研、实现和验证任务，并定义回传证据。` |
+| `wayfinder` | 跨 session 恢复一个长期项目，需要知道正在做什么、卡在哪里、从哪里安全继续。 | `$wayfinder 阅读项目的 wayfinder，告诉我当前主线、阻塞和最安全的下一入口。` |
+
+## 使用原则
+
+- 小而明确的任务直接完成，不为流程而流程化。
+- `grilling` 只澄清决策；`run-pilot` 只给出试验证据；`plan-work` 只产出计划。阶段之间不自动推进。
+- 可行性未知时优先 `run-pilot`；方向已定时直接 `plan-work`。
+- 并行工作前先用 `delegation-policy` 划分写入边界和验收证据；验证遵循项目自身的测试约定。
 
 ## 安装
 
-把这些 skill 文件夹复制到 Codex 的 skills 目录：
-
-```powershell
-# 从 YC_skills 仓库复制到 Codex runtime
-Copy-Item -Recurse "C:\workarea\YC_skills\skills\*" "$env:USERPROFILE\.codex\skills\"
-```
-
-装完后在 Codex 里输入 `/grilling`、`/run-pilot`、`/to-spec`、`/to-tickets` 即可调用。
-
-## 执行 Thread 的 Main Agent Prompt
-
-当你完成 to-tickets 后，开一个新 Thread，选 **GPT 5.6 sol HIGH**，粘贴这个 prompt：
-
-```
-你是主 agent，负责指挥 subagent 执行以下 tickets。
-
-规则：
-1. 按照依赖顺序，选择 blocking edges 已完成的 ticket
-2. 每个 ticket 派给一个 subagent（建议选 sol MEDIUM），给清楚 objective + completion evidence
-3. 一个 ticket 完成后，验证结果，再派下一个
-4. 不要自己实现——你是指挥官，不是执行者
-5. 如果 ticket 的结果改变了后面的设计，暂停并报告
-
-当前 tickets：[粘贴 to-tickets 输出]
-```
-
-## 重要提示
-
-- **不要给 GPT 5.6 装太多 skills**。这些四个就够了。Superpowers 等重型 skill 套件会让 agent 注意力分散。
-- **grilling 建议用高智能模型**。如果 Codex 当前模型不够聪明，把问题描述粘贴到网页版 GPT 聊完，拿着结论回来。
-- **run-pilot 是可选步骤**。如果你对方向已经很有信心，可以跳过直接 to-spec。
-- **这套工具是流程框架，不是代码生成器**。它们帮你做决策和规划，实际代码你自己写（或让 subagent 写）。
-
-## 四个 Skill 简介
-
-| Skill | 触发 | 做什么 |
-|-------|------|--------|
-| `/grilling` | `/grilling` | 用设计树方式反复追问你，直到边界清晰 |
-| `/run-pilot` | `/run-pilot` | 最小实现验证一个假设，产出 PASS/WEAK/FAIL 证据 |
-| `/to-spec` | `/to-spec` | 把讨论结果合成为结构化 spec 文档 |
-| `/to-tickets` | `/to-tickets` | 把 spec 拆成依赖有序的 tracer-bullet tickets |
+将需要的 skill 目录复制到 Codex 的本地 skills 目录。不同 Codex 版本的目录和安装方式可能不同，请以当前运行时的说明为准；安装后可通过 `$skill-name` 显式调用，也可让支持技能路由的运行时按任务匹配。
 
 ## 来源与归属
 
-这四个 skill 是个人 fork，基于以下上游开源项目修改而来：
-
-| Skill | 上游来源 | License | 修改内容 |
-|-------|----------|---------|----------|
-| grilling | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | 去掉了文件系统备份、agent config 引用。保留设计树、rounds、frontier 核心 |
-| to-spec | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | 去掉了 issue tracker 发布、跨仓库路由、Content Hash。简化为纯合成+本地文件 |
-| to-tickets | [mattpocock/skills](https://github.com/mattpocock/skills) | MIT | 去掉了 Goal 控制器、parallel matrix、多仓库路由。保留 tracer-bullet 核心 |
-| run-pilot | 原创 | — | 基于个人在 MyAgents 仓库的 skill 演进实践，不属于上游 |
-
-本仓库同样以 MIT License 发布。修改的核心方向：去掉通用软件工程的复杂度（issue tracker、多仓库、CI 绑定），聚焦于 **单人 + Codex subagent** 的使用场景。
-
-**如果你打算基于这套 skill 做更多修改，建议你自己 fork 一份，README 里标注清楚上游来源和你的修改内容即可。开源协议的核心要求是保留原始 License 声明，不要求你把修改回传。**
+本仓库以 MIT License 发布。`grilling`、`run-pilot` 与 `plan-work` 源自个人工作流的持续演进，其中 `grilling` 和 `plan-work` 最初参考了 [mattpocock/skills](https://github.com/mattpocock/skills) 的 MIT 许可内容；其余技能为面向当前 Codex 工作方式的个人整理。
