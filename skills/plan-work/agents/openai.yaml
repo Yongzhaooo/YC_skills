@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plan Work"
+  short_description: "Write a design spec, then slice it into vertical tickets"
+  default_prompt: "Use $plan-work to turn these settled decisions into a design spec under docs/specs/, then slice it into vertical work items."

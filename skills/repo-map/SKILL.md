@@ -1,20 +1,35 @@
 ---
 name: repo-map
-description: Use when locating files, symbols, callers, tests, or change boundaries in an unfamiliar, multi-file, repository-wide, or architecture-sensitive task before implementing.
+description: Use when locating files, exact text, symbols, callers, or project knowledge in unfamiliar, multi-file, repository-wide, or architecture-sensitive work, and an agent must identify owners, execution paths, and change boundaries before implementing.
 ---
 
 # Repo Map
 
-在实施前建立一份紧凑的代码库地图。先读适用的 `AGENTS.md` 或项目规则；项目本地的权限、检索和维护规则优先。
+Build a compact repository map before implementation.
 
-缩小根目录、文件类型、符号和关键字范围后再搜索。某条检索路径没有带来新证据时，换一种实质不同的路径，不要机械扩大搜索结果。
+Read applicable repository instructions first. Repository-local authority, retrieval,
+sensitivity, and maintenance rules override this generic policy.
 
-确认并报告：
+Narrow root, glob, file type, and symbol context before reading broad results. **If a
+route produces no new evidence, switch to a materially different route** instead of
+repeating a wider version of the same search.
 
-- 入口点、用户或系统触发点；
-- 按层列出的主文件、符号与调用/数据流；
-- 放大风险的共享抽象、副作用与分支点；
-- 已有测试和最小验证命令；
-- 未知项、最快的确认方法，以及建议的改动边界。
+Treat a stale or inconsistent project index as degraded. Exact or full-text evidence may
+remain usable with its warnings, but do not claim semantic retrieval is healthy.
 
-除非用户已要求实施，否则停留在定位模式。
+Map:
+- Entry points and user/system triggers.
+- Owning files and symbols.
+- Call chain or data flow through boundary layers.
+- Shared abstractions that amplify blast radius.
+- Existing tests and verification commands.
+- Unknowns and the fastest check for each unknown.
+
+Return:
+- Primary owning path in order.
+- Critical files/symbols by layer.
+- Risky branch points and side effects.
+- Proposed write boundary for implementation.
+- Verification surface.
+
+Stay in mapping mode unless the user has already asked for implementation.

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Wayfinder"
+  short_description: "Orient a project from docs/wayfinder.md"

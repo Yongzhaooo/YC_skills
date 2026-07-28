@@ -1,17 +1,64 @@
 ---
 name: wayfinder
-description: Use at the start of a multi-session project or when resuming work to read docs/wayfinder.md and report the live work, blockers, and safest next entrance without starting execution.
+description: Orient a multi-session project by reading docs/wayfinder.md and reporting live work, blockers, and safe next entrances without starting execution.
 ---
 
 # Wayfinder
 
-`docs/wayfinder.md` 是一个长期项目的短地图，不是任务看板、变更日志或完整设计文档。它回答三件事：当前正在推进什么、卡在什么条件上、下一次从哪里安全进入。
+Answer "where am I on this project?" from one file: `docs/wayfinder.md`. It holds the
+Destination, what is live, what is ready to pick up, and what is done. Detailed truth
+lives in the artifacts it points at — specs, skills, knowledge notes — not here.
 
-开始时：
+## Orient
 
-1. 读取 `docs/wayfinder.md`；若不存在，说明缺少恢复入口，不要凭历史对话臆造项目状态。
-2. 对照当前工作区、相关文档和 git 状态，检查地图是否与现实冲突。
-3. 用两到四行报告：当前主线、阻塞条件、最安全的下一入口；地图过期时指出具体条目并提出修正建议。
-4. 停在定位阶段，等待用户选择要继续的方向。不要因读取地图而自动开始实现。
+1. Read `docs/wayfinder.md`. If it does not exist, say so and offer to create it; do not
+   invent one silently.
+2. Report, in this order: the Destination, live work and what each is blocked on, the
+   entrances that are ready to pick up, and anything recently done that changes the
+   picture.
+3. Follow a reference only when the current question needs it. Do not read every linked
+   spec by default.
+4. Recommend entrances with a one-line reason each, then wait for the user to choose.
 
-保持地图短小、结论优先。只有阶段、阻塞或安全入口发生实质变化时才更新；细节应链接到设计文档、计划或证据所在位置。
+## Common entrances
+
+After the report, if the user picks an entrance, the usual chain is: `grilling` when
+decisions are still open → `plan-work` to write the spec and slice it → implement ticket
+by ticket → `run-pilot` first whenever feasibility itself is the question. Suggest the
+step that matches where the chosen entrance actually is; never start it unasked.
+
+## Boundaries
+
+- **Do not invent work.** "Nothing is ready to pick up" is a valid, useful answer.
+- **Do not start execution.** Stop after the report. Choosing an entrance, opening a
+  session, or invoking another skill is the user's next move.
+- **Do not move blockers.** A blocker clears on a user decision or concrete evidence, not
+  because the situation looks better.
+- Owning artifacts win conflicts. If a spec contradicts the map, the spec is right and
+  the map line is stale.
+
+## Update
+
+Update `docs/wayfinder.md` when something concrete is learned — a track became blocked or
+unblocked, a recovery point moved, work finished, a new track started. Reread the file
+immediately before editing, change only the affected lines, and keep each entry to one or
+two lines. Move finished items into **Done (rolling)** with a one-line outcome and drop
+the oldest entries once they stop being useful.
+
+Before writing a progress claim or moving work into **Done (rolling)** in
+`docs/wayfinder.md`, read the owning artifact's declared completion gates and require
+their evidence.
+
+Every line should point at something checkable. If you cannot name the evidence, do not
+write the line.
+
+**Drift check:** when the report and reality disagree — a Live item that is actually
+finished, a blocker that no longer holds — say so explicitly and propose the one-line
+correction in the same turn. A stale map that keeps being trusted is worse than no map.
+
+## Lessons
+
+- Earlier versions charted the whole project and readers drowned; the value is in live
+  work, blockers, and the next safe entrance, not in completeness.
+- Do not build a domain router or a shard schema. The project's own artifacts already own
+  their structure — this file only routes to them.
