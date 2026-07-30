@@ -33,7 +33,32 @@
 
 ## 安装
 
-将需要的 skill 目录复制到 Codex 的本地 skills 目录。不同 Codex 版本的目录和安装方式可能不同，请以当前运行时的说明为准；安装后可通过 `$skill-name` 显式调用，也可让支持技能路由的运行时按任务匹配。
+使用 [`skills`](https://github.com/vercel-labs/skills) 安装器，可以交互式选择需要的 skill 和目标 Agent：
+
+```bash
+npx skills@latest add Yongzhaooo/YC_skills
+```
+
+也可以安装指定 skill：
+
+```bash
+npx skills@latest add Yongzhaooo/YC_skills --skill repo-map
+```
+
+全局安装到 Codex：
+
+```bash
+npx skills@latest add Yongzhaooo/YC_skills --skill repo-map -g -a codex -y
+```
+
+安装器会记录来源；仓库发布新版本后，可更新全部或指定 skill：
+
+```bash
+npx skills update
+npx skills update repo-map
+```
+
+安装后可通过 `$skill-name` 显式调用，也可让支持技能路由的运行时按任务匹配。
 
 ## 来源与归属
 
