@@ -1,0 +1,6 @@
+interface:
+  display_name: "Delegation Policy"
+  short_description: "Route every Codex subagent dispatch deliberately"
+  default_prompt: "Use $delegation-policy before any spawn_agent call to decide whether delegation adds value, define ownership and a bounded child contract, select a live route, and integrate evidence."
+policy:
+  allow_implicit_invocation: true
