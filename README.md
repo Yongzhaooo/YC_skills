@@ -24,6 +24,8 @@
 | Skill | 何时使用 | 简单用法 |
 | --- | --- | --- |
 | `repo-map` | 陌生、多文件或架构敏感的改动，需要先找入口、调用链和测试面。 | `$repo-map 找出支付回调从 HTTP 入口到订单状态更新的路径，并给出可修改边界。` |
+| `bounded-filesystem-cleanup-safety` | 清理会物理删除或破坏性移动文件、目录或不明确边界的数据。 | `$bounded-filesystem-cleanup-safety 检查这个清理范围是否可以安全执行。` |
+| `github-release-recovery` | 标签、Actions artifact 和 GitHub Release 状态不一致或发布流程失败时，分层诊断并恢复可复现发布。 | `$github-release-recovery 检查这个 tag 为什么没有生成可下载的 Release。` |
 | `grilling` | 方案、边界或取舍尚未说清，希望以成批问题发现隐含假设。 | `$grilling 我想给 CLI 加离线缓存，帮我把决策和约束问清楚。` |
 | `run-pilot` | 在投入完整设计前，先做一个可回滚的小试验验证关键假设。 | `$run-pilot 用冻结的样本验证新的解析器能否达到准确率目标，不改生产入口。` |
 | `plan-work` | 方向已确定，需要写设计说明并拆成可验证的纵向工作项。 | `$plan-work 根据已确认的导入流程，写 spec 并拆成实施计划。` |
@@ -32,6 +34,9 @@
 | `test-verification` | 交付代码前，选择贴近改动的测试并说明证据与缺口。 | `$test-verification 验证这次修复，先运行最相关的检查，说明还有什么没验证。` |
 | `code-review` | 对指定基线以来的变更，分别核对仓库规范和原始需求。 | `$code-review 审查 main 以来的变更，只报告有依据的问题，不改代码。` |
 | `codebase-design` | 设计模块边界、公共接口和可测试的依赖关系。 | `$codebase-design 看看这组模块是否隐藏了足够的复杂性，哪些边界值得简化。` |
+| `improve-codebase-architecture` | 只审查架构摩擦，返回有证据的改进候选，不直接修改代码。 | `$improve-codebase-architecture 找出订单模块最值得先处理的结构性摩擦。` |
+| `handoff` | 把当前对话压缩成供下一位 Agent 接手的交接文档。 | `$handoff 为下一次任务生成交接文档。` |
+| `clean-action` | 用户明确调用时，压缩当前任务的执行路径并在完成后停止。 | `$clean-action 按最短可验证路径完成这个修复。` |
 
 ## 这次适配与我的使用方式
 
@@ -106,4 +111,4 @@ Stop That Shit 要按实际任务选择模式，例如 `$stop-that-shit review -
 
 本仓库以 MIT License 发布。MyAgents 是我的个人技能源仓库，这里是经过选择、去除部署元数据的公开分享版；更新从已审阅的源码整理，不直接镜像运行时目录。
 
-`grilling`、`run-pilot`、`plan-work`、`wayfinder`、`code-review` 和 `codebase-design` 参考或改编自 [mattpocock/skills](https://github.com/mattpocock/skills) 的 MIT 许可内容，修改包括精简流程、去除固定工具依赖和按风险分配验证。来源版本与版权声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。其余技能为个人整理。Ponytail 与 Stop That Shit 由各自上游维护，本仓库只提供完整安装指引。
+`grilling`、`run-pilot`、`plan-work`、`wayfinder`、`code-review`、`codebase-design`、`handoff` 和 `improve-codebase-architecture` 参考或改编自 [mattpocock/skills](https://github.com/mattpocock/skills) 的 MIT 许可内容，修改包括精简流程、去除固定工具依赖和按风险分配验证。来源版本与版权声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。其余技能为个人整理。Ponytail 与 Stop That Shit 由各自上游维护，本仓库只提供完整安装指引。
