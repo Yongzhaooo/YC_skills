@@ -1,4 +1,4 @@
 interface:
   display_name: "Plan Work"
-  short_description: "Write a design spec, then slice it into vertical tickets"
-  default_prompt: "Use $plan-work to record these settled decisions only as deeply as execution needs, then produce the smallest useful vertical work-item set."
+  short_description: "Plan concrete tasks, interfaces, and parallel dependencies"
+  default_prompt: "Use $plan-work to turn these settled requirements into an execution-ready plan with concrete scope, interfaces, and acceptance evidence. State which work can run in parallel and which dependencies force sequencing; if nothing can run in parallel, say so directly."

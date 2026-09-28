@@ -10,6 +10,13 @@ The following skills are personally adapted from the MIT-licensed
 | `handoff` | `2ab958093e83e0ec752e6c1c5932da465bf23e0c` | Removed upstream `argument-hint` and implicit-invocation metadata, added Claude compatibility in MyAgents, and otherwise kept the upstream handoff body. The public copy also omits deployment metadata. |
 | `improve-codebase-architecture` | `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76` | Kept evidence-based architectural analysis while making delegation and visuals optional and removing assumed project-specific companion skills and workflows. |
 
+`plan-work` also draws on
+[`writing-plans`](https://github.com/obra/superpowers/blob/8ca22dba9a94f28898bbce59f2537ff4d87c747d/skills/writing-plans/SKILL.md)
+from `obra/superpowers` at revision `8ca22dba9a94f28898bbce59f2537ff4d87c747d`.
+The adaptation adds concrete interfaces, acceptance evidence, explicit execution
+dependencies, and separate authorization for human communication and financial actions.
+Its MIT license is retained in [LICENSE.superpowers](skills/plan-work/LICENSE.superpowers).
+
 These are adapted skills, not unmodified upstream snapshots. Sharing adaptations also
 omit personal deployment metadata. Ponytail and Stop That Shit are linked for separate
 installation; their plugin code is not bundled here.
