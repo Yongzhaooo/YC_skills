@@ -1,0 +1,4 @@
+interface:
+  display_name: "AGY Assist"
+  short_description: "通过官方 agy 协助阅读、润色和清洗文本，由主 Agent 验收"
+  default_prompt: "使用 $agy-assist 将这份材料交给 Antigravity 处理，并核对结果中的事实和不确定项。"
