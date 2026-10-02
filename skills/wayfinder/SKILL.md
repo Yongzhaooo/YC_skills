@@ -1,111 +1,139 @@
 ---
 name: wayfinder
-description: Orient or resume a multi-session project from docs/wayfinder.md by reporting claimed work, recovery points, blockers, and unclaimed next actions without starting execution.
+description: Report project status or resume a selected task from docs/wayfinder.md, including where a long-running outcome stands and whether its route still holds. Maintain its recovery pointers when authorized work changes state. Status-only requests stay read-only; the map is not a backlog or review log.
 ---
 
 # Wayfinder
 
-Answer "where am I on this project?" from one file: `docs/wayfinder.md`. It holds the
-project outcome, claimed work and its recovery point, unclaimed next actions, waiting or
-watched conditions, and recent outcomes. Detailed truth lives in the artifacts it points
-at — specs, pilots, skills, and knowledge notes — not here.
+Use `docs/wayfinder.md` for the project outcome, where it stands, the current focus,
+recovery points, selected next work, and conditions that change what to do next.
+Details belong in linked owner artifacts. Review suggestions stay there until selected
+as work. A short task can be a few sentences; expand only the stage being executed.
 
-## Orient
+## Orient or resume
 
-1. Read `docs/wayfinder.md`. If it does not exist, say so and offer to create it; do not
-   invent one silently.
-2. Report, in this order: the project outcome; every **In progress** item with its status,
-   resume point, and immediate next step; **Waiting** items and their blockers; unclaimed
-   **Next actions**; then watched or recently completed items only when they change the
-   picture.
-3. Treat an item appearing in both **In progress** and **Next actions**, or an In-progress
-   item without a checkable resume point, as map drift. Say so rather than guessing.
-4. Follow a reference only when the current question needs it. Do not read every linked
-   artifact by default.
-5. Recommend resuming claimed work before suggesting a new action. Give a one-line reason
-   for each viable choice, then wait for the user to choose.
+1. Read the map; if absent, report that rather than creating one.
+2. For status, report as described in Report for the reader. For a selected task, follow
+   only its relevant recovery links and decisions.
+3. Flag drift: duplicate entries, missing recovery evidence, a summary that conflicts
+   with its owning evidence, entries that carry evidence dumps instead of state, and
+   history that no longer affects recovery or selection. A map lacking the newer fields
+   stays readable; missing format alone is not drift. Check current owning evidence
+   before resuming or claiming completion; a draft or historical spec does not prove
+   approval, execution, or deployment. Report conflicts rather than guessing.
+4. If the user is choosing work, keep claimed work visible but recommend by the current
+   focus and outcome; an earlier claim is not permanently the highest priority. Await
+   selection. Resume an already selected, authorized task without asking them to choose
+   again. A status-only request ends with the report and any proposed drift correction,
+   without editing.
+
+Entering the map, having a next step, or time passing grants no execution authority.
+Return material changes to the outcome, scope, or commitments to the user.
 
 ## State contract
 
-Use these headings in new or updated maps:
+Preserve these headings for existing maps and Board consumers; omit empty sections.
+Place the inline fields before the first `##` heading with a blank line after each;
+Board reads the outcome until the first blank line or heading.
 
-- `**Project outcome:**` — the durable result the project serves.
-- `## In progress` — work already claimed and not yet closed. Each line uses
-  `**name** — running|paused; resume: <checkable artifact or recovery point>; next: <one
-  concrete step>`. `running` means execution is underway; `paused` means the claim and
-  recovery point remain valid across sessions.
-- `## Next actions` — useful work that no session has claimed yet. "Next" means safe to
-  start after the user chooses it; it does not mean started, approved for side effects,
-  or higher priority than claimed work.
-- `## Waiting` — claimed or desired work that cannot advance until the named evidence,
-  decision, or dependency arrives.
-- `## Watching` — a condition worth monitoring with no current execution claim.
-  Also the home for low-priority, non-blocking technical debt: known issues
-  recorded in a durable place (e.g. `docs/open-issues.md`) that are neither
-  urgent enough for `Next actions` nor blocked enough for `Waiting`. Watch
-  items are surfaced on orient, not actively pursued.
-- `## Done (rolling)` — recent evidence-backed outcomes.
+- `**Project outcome:**` — the durable result and what counts as done. For ongoing
+  maintenance, state the service goal and the result this round can finish; do not
+  invent an end date for the whole project.
+- `**Current answer:**` — a short summary of where the outcome stands: results reached,
+  key gaps, what the claim rests on, and an as-of date where timing matters. It may link
+  owning evidence directly rather than only the entries below.
+- `**Current focus:**` — the result this round seeks, why it was chosen, when it counts
+  as done, and what change would require rethinking the route, in one paragraph.
+- `## Milestones` — optional, for multi-stage work, before the task sections: results
+  and gaps that still affect the current judgment. A milestone stays while it shapes the
+  route, even after its tasks leave Done.
+- `## In progress` — claimed unfinished work: `**name** — running|paused;
+  resume: <checkable recovery point>; next: <concrete step>`. Running means executing;
+  paused retains the claim across sessions.
+- `## Next actions` — unclaimed near-term work selected by the user or current owning
+  plan, with an outcome and entry point.
+- `## Waiting` — selected work awaiting a decision, evidence, or dependency. Retain its
+  recovery point and name the clearing condition and known supplier. Move the task here
+  rather than duplicating its In-progress entry.
+- `## Watching` — an observable condition, evidence source, and action its change would
+  trigger. This does not launch a monitor or collect unprioritized debt.
+- `## Done (rolling)` — verified outcomes still needed for handoff; at most three by
+  default unless the project specifies another bound.
 
-An empty section is valid and may be omitted. For compatibility, read `Destination`,
-`Live`, `Ready to pick up`, and `Blockers`, but when editing classify each legacy entry
-into the new headings. `Live` is not automatically In progress: move monitoring-only
-entries to **Watching**.
+Task entries carry resumption; Current answer and Milestones carry the overall judgment.
+Read legacy Destination, Live, Ready to pick up, and Blockers headings; classify affected
+entries when updating them. Monitoring-only Live items need a real Watching trigger.
+Record resumable work before recovery context can be lost. A pilot points to its
+pilot.md, which owns its lifecycle and result. Never clear a claim merely because an
+app session is absent or time has passed; use owning evidence or an explicit decision.
 
-When a multi-session project or resumable pilot starts, write or move its line into
-**In progress** before the session can lose its recovery context. A running pilot points
-to its `pilot.md`; that file owns the pilot lifecycle and result, while Wayfinder only
-mirrors the current resume point. A new session must not clear or downgrade the line
-because no matching app session is visible. Move it only on owning-artifact evidence or
-an explicit user decision.
+## Report for the reader
 
-## Common entrances
+A status or resume report answers the user's question, not the map's layout.
 
-After the report, if the user picks an action, the usual chain is: `grilling` when
-decisions are still open → `plan-work` to write the spec and slice it → implement ticket
-by ticket → `run-pilot` first whenever feasibility itself is the question. Suggest the
-step that matches where the chosen action actually is; never start it unasked.
+1. Open with a sentence that answers the question; for general status, start from where
+   the outcome stands. Then add the goal, stage, and task context the question needs.
+2. Organize by the reader's questions (for example "Is the root cause known?", "Is it
+   fixed upstream?"), not by map headings or chronology. Choose tables, sections, and
+   term explanations by reading need, not by item count.
+3. Explain each item's role toward the outcome. Call items critical-path or side work
+   only when the outcome and dependency evidence support it; otherwise say it is unknown.
+4. Follow only the evidence that bears on the question or selected task. Keep verified
+   facts, inferences, and unknowns distinguishable. Give each state's source and date;
+   reading or editing today does not refresh it, and a record read today is not live
+   state. When a summary conflicts with its owning evidence, report the conflict.
+5. Introduce project-specific components or identifiers by their role at first mention.
+6. End with the decision or next step that is actually open. Do not restate evidence
+   the owners hold or reargue settled choices.
 
-## Boundaries
+Length follows the question; a narrow question gets a short answer.
 
-- **Do not invent work.** "There are no unclaimed next actions" is a valid, useful answer.
-- **Do not start execution.** Stop after the report. Choosing an entrance, opening a
-  session, or invoking another skill is the user's next move.
-- **Do not move blockers.** A blocker clears on a user decision or concrete evidence, not
-  because the situation looks better.
-- **Do not infer ownership from app sessions.** Session presence may corroborate a map
-  line; absence never makes a durable execution claim disappear.
-- Owning artifacts win conflicts. If a spec contradicts the map, the spec is right and
-  the map line is stale.
+## Reassess the route
 
-## Update
+When a task ends, a key assumption fails, an external dependency changes, or an agreed
+budget runs out, judge whether the stage is complete and whether the next step still
+makes sense. Judge a stage by its done condition and evidence, not by ticked tasks.
+If new evidence undermines the route, propose an evidence-based change instead of
+continuing the old plan mechanically.
 
-Update `docs/wayfinder.md` when something concrete is learned — work was claimed, paused,
-blocked, resumed, or finished; a recovery point moved; or a watched condition changed.
-Reread the file immediately before editing, change only the affected lines, and keep each
-entry to one or two lines. Move finished items into **Done (rolling)** with a one-line
-outcome and drop the oldest entries once they stop being useful.
+When the current task is waiting, look for independent work that is already authorized
+and can advance; keep the waiting task's recovery point. Link settled choices to the
+plan or decision holding their rationale and reopen condition; no separate ADR is
+required, and do not reopen them unless that condition is met. When external state is
+unknown, say it needs checking: "no record of merge confirmation" does not mean "not
+merged".
 
-Before writing a progress claim or moving work into **Done (rolling)** in
-`docs/wayfinder.md`, read the owning artifact's declared completion gates and require
-their evidence.
+## Choose the next entrance
 
-Every line should point at something checkable. If you cannot name the evidence, do not
-write the line.
+Choose only what the selected task's unresolved question needs:
 
-**Drift check:** when the report and reality disagree — an In-progress item is actually
-finished, a resume point moved, or a blocker no longer holds — say so explicitly and
-propose the one-line correction in the same turn. A stale map that keeps being trusted is
-worse than no map.
+- Reasoning/clarity of a proposed approach: proposal-review.
+- Rigorous long-term architecture or subsystem design: maintainer-review, on design or patch.
+- Feasibility evidence: run-pilot when an experiment is authorized.
+- Durable planning or behavior specification of settled choices: plan-work.
+- Existing patch: code-review; complexity alone: ponytail-review.
+- Sufficiently clear, already-authorized work: continue directly.
 
-## Lessons
+These are navigation hints, not a pipeline; use available capabilities when a named
+skill is absent. Use grilling only for an explicitly requested exhaustive interview.
 
-- Earlier versions charted the whole project and readers drowned; the value is in live
-  work, blockers, and the next safe entrance, not in completeness.
-- Do not build a domain router or a shard schema. The project's own artifacts already own
-  their structure — this file only routes to them.
-- `Live` mixed actively owned work with long-term monitoring, so a new session could not
-  tell whether to resume or merely observe. Use **In progress** only for a durable claim
-  with a resume point; put monitoring-only state in **Watching**.
-- Low-priority tech debt is not a next action and not a blocker. Give it a
-  durable home (`docs/open-issues.md`) and a `Watching` line, so it surfaces on
-  orient without claiming execution or crowding the real next steps.
+## Maintain
+
+During authorized work, update on changed state, recovery point, or watched condition.
+Reread immediately before editing; replace or move the affected entry instead of adding
+progress notes, and replace any current conclusion the change affects, checking the
+related Current answer, focus, and milestones. A small change does not trigger a
+project-wide reinvestigation; status queries never write.
+
+Keep one entry per task, normally one or two lines: its role toward the outcome when
+that is not obvious, present state, next action/trigger, and a link to its owner. Keep
+the minimum detail that still affects recovery or selection; leave sample counts,
+message or boot IDs, delivery receipts, command results, and dated history in the
+owner. A still-valid recovery baseline, such as a device's restore state, may stay even
+outside the standard sections. Clear blockers and claim completion only against the
+owning artifact's gates and evidence.
+
+Retain entries that enable a current recovery or selection decision. Remove superseded
+pointers after checking their owners, preserving unresolved claims. Prune Done once its
+evidence is retained in existing records. Do not delete source artifacts or create an
+archive/ledger for each pass. Broader map cleanup is a separate requested task.

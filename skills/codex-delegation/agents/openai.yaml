@@ -1,0 +1,6 @@
+interface:
+  display_name: "Codex Delegation"
+  short_description: "Follow explicit routes and brief bounded subagents"
+  default_prompt: "Use $codex-delegation before any spawn_agent call or child assignment. Use the configured default route unless explicitly overridden, preserve source acceptance criteria, and verify returned evidence."
+policy:
+  allow_implicit_invocation: true

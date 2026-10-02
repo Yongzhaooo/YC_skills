@@ -5,7 +5,8 @@ The following skills are personally adapted from the MIT-licensed
 
 | Skills | Upstream revision | Adaptation |
 | --- | --- | --- |
-| `grilling`, `run-pilot`, `plan-work`, `wayfinder` | `9603c1cc8118d08bc1b3bf34cf714f62178dea3b` | Personal workflow adaptation; bounded experiments, proportional planning, and a local project map. |
+| `grilling`, `run-pilot`, `plan-work` | `9603c1cc8118d08bc1b3bf34cf714f62178dea3b` | Personal workflow adaptation; bounded experiments and proportional planning. |
+| `wayfinder` | `9603c1cc8118d08bc1b3bf34cf714f62178dea3b` | Simplified to a local project map; adds outcome, current answer, focus and optional milestones, reader-first reports with dated evidence, and route reassessment without granting execution authority. Sharing copy synchronized from MyAgents `16def2a4caac968a02c43d121780ee80d24315ee`. |
 | `code-review`, `codebase-design` | `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76` | Retained standards/spec review and module design guidance; removed mandatory delegation and assumed project tools. |
 | `handoff` | `2ab958093e83e0ec752e6c1c5932da465bf23e0c` | Removed upstream `argument-hint` and implicit-invocation metadata, added Claude compatibility in MyAgents, and otherwise kept the upstream handoff body. The public copy also omits deployment metadata. |
 | `improve-codebase-architecture` | `6654f6b60cd9d5be8b54c6fafe44346dabeb3b76` | Kept evidence-based architectural analysis while making delegation and visuals optional and removing assumed project-specific companion skills and workflows. |
