@@ -138,7 +138,7 @@ The adapter preserves other ACP settings and does not change interactive permiss
 
 The manager queries official CLI `/usage`, then verifies restoration of the original
 CLI credential, active marker and account-bound files. A pending encrypted
-`quota-recovery.dpapi` blocks another query. After confirming no ACP/CLI operation
+`quota-recovery.dpapi` blocks another query. After confirming no CLI operation
 is active, restore an interrupted query with:
 
 ```text
@@ -149,9 +149,25 @@ Only explicit exhaustion triggers automatic recovery. Unknown or zero 5h/weekly
 quota is ineligible. Sort by remaining 5h, then weekly, then profile name. Never retry
 an exhausted profile in the same episode. Profile names without enrolled ACP
 snapshots are reported by quota discovery but cannot be selected. No implicit model
-fallback or permission increase occurs. A managed-run lock prevents overlapping
-account changes; it does not control unrelated clients. Close/preserve those clients
-before switching; the adapter refuses an unsafe switch.
+fallback or permission increase occurs. Enrollment, global account switching and
+CLI quota queries share a transaction lock; active CLI work blocks quota discovery.
+Preserve unrelated clients and never force past a pending recovery.
+
+With rotation enabled, independent Pi sessions can run concurrently, even on the
+same account. The runner gives each session a stable ACP home under the account
+store's `sessions/<session-path-hash>/`, using `GEMINI_HOME` and
+`AGY_ACP_FORCE_FILE_STORAGE=1`. These runtime settings are documented by the
+[acpx Antigravity client](https://github.com/openclaw/acpx/blob/main/agents/Antigravity.md)
+and verified with simultaneous calls here. No runtime binary is patched.
+Account rotation changes only the requesting session's files. The session lock
+prevents two writers using the same exact Pi session path; quota transactions are
+serialized briefly rather than locking the entire run.
+
+Keep the session home for resume. It contains native OAuth credential files and
+runtime caches outside Git; enrollment snapshots remain DPAPI-encrypted. A legacy
+session migrating from the shared ACP home rebuilds its native checkpoint from the
+saved Pi transcript. Already running older runners retain their old lock behavior
+until they finish. With rotation disabled, this ACP home isolation is not enabled.
 
 The first attempt retains its files; retries use `retry-01`, etc. under that run's
 evidence directory. The top-level result/summary describe the final outcome,
@@ -228,5 +244,5 @@ lost pipe can prevent wakeup. An uncertain delivery is not retried automatically
 to avoid duplicate prompts; inspect its record and the current request status before
 manual recovery. The worker is single-use and not a restart service. A question that
 exceeds its reply deadline remains recoverable through the exact saved Pi session.
-The account-store lock remains held during that wait; parallel managed AGY jobs are
-still unsupported. Reading `status.json` is not delivery acceptance.
+Only the waiting Pi session remains locked; independent managed sessions can run.
+Reading `status.json` is not delivery acceptance.

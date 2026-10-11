@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import subprocess
 import unittest
 from unittest.mock import Mock, patch
 
@@ -15,6 +16,41 @@ import pi_transport as pi
 
 
 class AccountTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == "nt", "Windows DPAPI")
+    def test_session_isolation_switching_and_independent_process_locks(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            store = accounts.AccountPool({'store':str(root/'pool')},auth_dir=root/'global-auth')
+            first = {'token':{'client_id':'test','refresh_token':'fake-one'},'auth':{'type':'oauth-personal'}}
+            second = {'token':{'client_id':'test','refresh_token':'fake-two'},'auth':{'type':'oauth-personal'}}
+            store.apply(first)
+            store.write('one',first)
+            store.write('two',second)
+            a_session, b_session = root/'a/session.jsonl', root/'b/session.jsonl'
+            with store.session_lock(a_session):
+                with store.locked():  # A legacy runner's pool lock must not block new isolated reads.
+                    a = store.for_session(a_session)
+                with store.session_lock(b_session):
+                    b = store.for_session(b_session)
+                    self.assertNotEqual(a.auth_dir,b.auth_dir)
+                    b.switch('two')  # No process-wide quiet check or shared recovery write.
+                    self.assertEqual(a.current(),'one')
+                    self.assertEqual(b.current(),'two')
+                    self.assertEqual(store.current(),'one')
+                    with store.locked():  # Running sessions must not occupy the pool transaction lock.
+                        pass
+                with self.assertRaises(ValueError):
+                    with store.session_lock(a_session):
+                        pass
+                child = ('import sys; from pathlib import Path; '
+                         f'sys.path.insert(0,{str(ROOT / "skills/agy-execution/scripts")!r}); '
+                         'from pi_accounts import AccountPool; '
+                         f'p=AccountPool({store.config!r}); '
+                         f'ctx=p.session_lock({str(b_session)!r}); ctx.__enter__(); ctx.__exit__(None,None,None)')
+                subprocess.run([sys.executable,'-c',child],check=True,capture_output=True)
+            self.assertEqual(store.for_session(b_session).current(),'two')
+            self.assertFalse((store.root/'_recovery.dpapi').exists())
+
     def test_selection_excludes_unknown_zero_exhausted_and_unenrolled(self):
         rows = [dict(profile="a", remaining_5h=90, remaining_weekly=20),
                 dict(profile="b", remaining_5h=90, remaining_weekly=40),
@@ -79,6 +115,9 @@ class AccountTests(unittest.TestCase):
             root = Path(folder)/"run"
             pool = Mock()
             pool.locked.return_value = nullcontext()
+            pool.session_lock.return_value = nullcontext()
+            pool.for_session.return_value = pool
+            pool.auth_dir = Path(folder)/'isolated/antigravity-acp'
             pool.current.return_value = "one"
             pool.names.return_value = ["one", "two"]
             pool.quotas.return_value = [{"profile": "two", "remaining_5h": 80, "remaining_weekly": 60}]
@@ -105,6 +144,8 @@ class AccountTests(unittest.TestCase):
             for key in ["model", "effort", "auto_approve", "skills", "context_root", "reply_timeout"]:
                 self.assertEqual(calls[0][1][key], calls[1][1][key])
             pool.switch.assert_called_once_with("two")
+            self.assertEqual(calls[0][1]['acp_home'],pool.auth_dir.parent)
+            self.assertEqual(calls[1][1]['acp_home'],pool.auth_dir.parent)
             self.assertTrue(json.loads((root/"summary.json").read_text())["invocation_complete"])
 
     def test_enroll_matches_stable_identity_and_refuses_ambiguous_mapping(self):
@@ -128,6 +169,9 @@ class AccountTests(unittest.TestCase):
     def test_normal_failures_never_rotate(self):
         pool = Mock()
         pool.locked.return_value = nullcontext()
+        pool.session_lock.return_value = nullcontext()
+        pool.for_session.return_value = pool
+        pool.auth_dir = Path('isolated/antigravity-acp')
         pool.current.return_value = "one"
         with tempfile.TemporaryDirectory() as folder, \
                 patch.object(pi, "load_route", return_value={"rotation": {"enabled": True}}), \

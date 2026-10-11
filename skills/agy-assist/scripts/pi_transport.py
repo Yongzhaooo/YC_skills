@@ -8,7 +8,6 @@ import subprocess
 import hashlib
 import re
 import sys
-from contextlib import nullcontext
 
 
 class QuotaExhausted(ValueError):
@@ -142,7 +141,7 @@ def stop_process(proc):
 
 
 def _run_pi_once(prompt, *, cwd, output, model=None, effort=None, conversation=None,
-                 timeout=None, auto_approve=False, text_only=False, skills=(), skill_references=(), route=None, context_root=None, reply_timeout=900):
+                 timeout=None, auto_approve=False, text_only=False, skills=(), skill_references=(), route=None, context_root=None, reply_timeout=900, acp_home=None):
     if not prompt.strip():
         raise ValueError("Assignment is empty")
     if timeout is not None and (not math.isfinite(timeout) or timeout <= 0):
@@ -190,6 +189,8 @@ def _run_pi_once(prompt, *, cwd, output, model=None, effort=None, conversation=N
                "Do not turn routine repairable failures into questions, or treat a reply as broader permissions.")
     env = {**os.environ, "PI_CODING_AGENT_DIR": str(profile), "AGY_TEXT_ONLY": "1" if text_only else "0",
            "PYTHONUTF8": "1", "PYTHONIOENCODING": "utf-8"}
+    if acp_home is not None:
+        env.update(GEMINI_HOME=str(acp_home), AGY_ACP_FORCE_FILE_STORAGE="1")
     if route.get("node"):
         env["NODE"] = route["node"]
         env["PATH"] = str(Path(route["node"]).parent) + os.pathsep + env.get("PATH", "")
@@ -235,30 +236,37 @@ def run_pi(prompt, **options):
     route = load_route()
     rotation = route.get("rotation", {})
     from pi_accounts import AccountPool, select_candidate
-    pool = AccountPool(rotation) if rotation.get("enabled") else None
+    store = AccountPool(rotation)
+    pool = None
     output = Path(options["output"]).resolve()
     recoveries, tried = [], set()
-    with pool.locked() if pool else nullcontext():
+    original_session = Path(options.get("conversation") or output / "session.jsonl").resolve()
+    with store.session_lock(original_session):
+        if rotation.get("enabled"):
+            pool = store.for_session(original_session)
         account = pool.current() if pool else None
         if account:
             tried.add(account)
         attempt_options = dict(options, route=route)
+        if pool:
+            attempt_options["acp_home"] = pool.auth_dir.parent
         original_prompt = prompt
         while True:
             session = Path(attempt_options.get("conversation") or Path(attempt_options["output"]) / "session.jsonl")
             profile = session.parent / (session.stem + ".agent")
             binding = profile / "account.json"
-            if pool and binding.exists():
-                previous = json.loads(binding.read_text(encoding="utf-8"))
-                if previous.get("profile") != account:
+            account_binding = {"profile": account, "acp_home": str(pool.auth_dir.parent)} if pool else {}
+            if pool and session.exists():
+                previous = json.loads(binding.read_text(encoding="utf-8")) if binding.exists() else {}
+                if previous != account_binding:
                     save(profile / "antigravity-acp-provider/sessions.json", [])
             # Initial output is created by _run_pi_once, not by account bookkeeping.
             if session.exists() and pool:
-                save(binding, {"profile": account})
+                save(binding, account_binding)
             try:
                 result = _run_pi_once(prompt, **attempt_options)
                 if pool:
-                    save(binding, {"profile": account})
+                    save(binding, account_binding)
                 if recoveries:
                     result["account_profile"] = account
                     result["recoveries"] = recoveries
@@ -277,7 +285,8 @@ def run_pi(prompt, **options):
                 if not recoveries:
                     save(output / "initial-summary.json", json.loads((output / "summary.json").read_text(encoding="utf-8")))
                 try:
-                    rows = pool.quotas()
+                    with pool.locked(timeout=300):
+                        rows = pool.quotas()
                     save(output / "quota.json", rows)
                     selected = select_candidate(rows, pool.names(), tried)
                     old = account
@@ -287,7 +296,7 @@ def run_pi(prompt, **options):
                     save(output / "recovery.json", recoveries)
                     print(f"ACP quota exhausted on {old}; continuing with {account}", file=sys.stderr)
                     save(profile / "antigravity-acp-provider/sessions.json", [])
-                    save(binding, {"profile": account})
+                    save(binding, {"profile": account, "acp_home": str(pool.auth_dir.parent)})
                     attempt_options.update(conversation=str(session), output=output / f"retry-{len(recoveries):02d}")
                     prompt = ("Continue this same assignment after an account quota interruption. "
                               "Use the saved Pi conversation and existing artifacts; do not repeat completed external actions. "

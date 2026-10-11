@@ -11,6 +11,41 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import hashlib
+import time
+
+
+@contextmanager
+def file_lock(path, *, timeout=0):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('a+b') as handle:
+        if os.fstat(handle.fileno()).st_size == 0:
+            handle.write(b'0')
+            handle.flush()
+        deadline = time.monotonic() + timeout
+        while True:
+            try:
+                handle.seek(0)
+                if os.name == 'nt':
+                    import msvcrt
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    import fcntl
+                    fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError as exc:
+                if time.monotonic() >= deadline:
+                    raise ValueError(f'Busy lock: {path}; preserve the active operation') from exc
+                time.sleep(.1)
+        try:
+            yield
+        finally:
+            handle.seek(0)
+            if os.name == 'nt':
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(handle, fcntl.LOCK_UN)
 
 
 def atomic_json(path, value):
@@ -97,35 +132,36 @@ def select_candidate(rows, enrolled, tried):
 
 
 class AccountPool:
-    def __init__(self, config, *, auth_dir=None):
+    def __init__(self, config, *, auth_dir=None, isolated=False):
         self.config = config
         self.root = Path(config.get("store", Path.home() / ".pi/agent/acp-profiles"))
         self.auth_dir = Path(auth_dir or Path.home() / ".gemini/antigravity-acp")
+        self.isolated = isolated
 
     @contextmanager
-    def locked(self):
-        # ponytail: shared Google auth files require one managed run at a time;
-        # replace this lock only when the official runtime supports isolated auth roots.
-        import msvcrt
-        self.root.mkdir(parents=True, exist_ok=True)
-        with (self.root / "pool.lock").open("a+b") as handle:
-            handle.seek(0)
-            if os.fstat(handle.fileno()).st_size == 0:
-                handle.write(b"0")
-                handle.flush()
-            handle.seek(0)
-            try:
-                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
-            except OSError as exc:
-                raise ValueError("Another managed ACP run/account operation is active; retry after it finishes") from exc
-            try:
-                yield self
-            finally:
-                handle.seek(0)
-                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+    def locked(self, *, timeout=0):
+        # Only enrollment/global switching and CLI quota transactions share this lock.
+        with file_lock(self.root / 'pool.lock', timeout=timeout):
+            yield self
+
+    def session_key(self, session):
+        return hashlib.sha256(os.path.normcase(str(Path(session).resolve())).encode('utf-8')).hexdigest()
+
+    def session_lock(self, session):
+        return file_lock(self.root / 'session-locks' / (self.session_key(session) + '.lock'))
+
+    def for_session(self, session):
+        local = AccountPool(self.config, auth_dir=self.root/'sessions'/self.session_key(session)/'antigravity-acp', isolated=True)
+        if not all((local.auth_dir/name).exists() for name in ('acp_token.json', 'settings.json')):
+            # Read a snapshot, then write only this session's files. No shared mutation
+            # and no reason to wait for an older runner's whole-run pool lock.
+            local.apply(self.capture())
+        return local
 
     def quiet(self, *, include_cli=False):
-        names = "'agy_acp_server','localharness_external'" + (",'agy'" if include_cli else "")
+        if self.isolated and not include_cli:
+            return
+        names = "'agy'" if include_cli else "'agy_acp_server','localharness_external'"
         script = f"@(Get-Process -Name {names} -ErrorAction SilentlyContinue).Count"
         result = subprocess.run([self.config.get("powershell", "pwsh"), "-NoProfile", "-Command", script],
                                 capture_output=True, text=True, encoding="utf-8", check=True)
@@ -206,7 +242,8 @@ class AccountPool:
         self.quiet()
         target = self.read(name)
         original = self.capture()
-        self.write("_recovery", original)
+        if not self.isolated:
+            self.write("_recovery", original)
         try:
             self.apply(target)
             if self.current() != name:

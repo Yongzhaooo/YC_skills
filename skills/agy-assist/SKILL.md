@@ -105,10 +105,13 @@ quota, then weekly remaining quota, then name. Unknown/zero quota and unenrolled
 accounts are excluded. Network errors, generic rate limits and denied tools do not
 trigger rotation. Text-only scope and default permissions remain unchanged.
 
-Google's shared auth files require one managed run/account operation at a time.
-Unrelated active ACP/CLI work blocks switching; preserve it and follow the primary
-agent's actual shutdown authority. Credentials stay DPAPI-encrypted outside Git;
-never put CLI refresh tokens into ACP. Follow the setup reference for one-time
+With rotation enabled, each Pi session has its own ACP home and can run concurrently.
+Only writers on the same Pi session are excluded. Rotation changes that session's
+credentials; enrollment/global switching and CLI quota transactions use the pool
+lock. Active CLI work blocks quota discovery; preserve unrelated processes.
+Enrollment snapshots are DPAPI-encrypted; native session credential files and caches
+stay outside Git and must be retained for resume. Never put CLI refresh tokens into
+ACP. Follow the setup reference for one-time
 profile enrollment and interrupted CLI quota restoration. Retain quota/recovery
 logs on exhaustion. An account switch never substitutes for content acceptance.
 
@@ -176,7 +179,7 @@ means the executor failed or duplicate the work. Background is not reboot recove
 
 The reply deadline remains `--reply-timeout` (900 seconds by default); increase it
 when the human may be away. Background adds no tool approval. While a question waits,
-the existing single-account-store lock still serializes other managed AGY runs.
+only that Pi session is locked; other sessions can continue independently.
 Completion always requires the primary agent's independent acceptance.
 
 ## Accept

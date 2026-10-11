@@ -165,7 +165,7 @@ means the executor failed or duplicate the work. Background is not reboot recove
 
 The reply deadline remains `--reply-timeout` (900 seconds by default); increase it
 when the human may be away. Background adds no tool approval. While a question waits,
-the existing single-account-store lock still serializes other managed AGY runs.
+only that Pi session is locked; other sessions can continue independently.
 Completion always requires the primary agent's independent acceptance.
 
 ## Recover and accept
@@ -189,10 +189,13 @@ denials, and poor answers do not trigger rotation.
 ACP needs an independently enrolled login snapshot under the same profile name;
 CLI tokens are never substituted into ACP. Snapshots are Windows DPAPI-encrypted
 outside Git. Profile management and one-time enrollment are in the setup reference.
-Managed runs use one account-store lock because the official auth files are shared.
-An unrelated active ACP/CLI process blocks switching rather than being terminated
-without retaining its work. Preserve its handles and stop it only under the task's
-actual authority, then resume. Quota queries retain an encrypted recovery snapshot
+With rotation enabled, each Pi session has its own ACP home and can run concurrently,
+including while another session waits for a primary reply. Never run two writers on
+the same Pi session. Rotation changes only the requesting session's credentials.
+Enrollment/global switching and CLI quota transactions still use the pool lock;
+active CLI work blocks quota discovery. Preserve unrelated processes. Session-local
+native credential files and caches stay outside Git; retain them for resume.
+Quota queries retain an encrypted recovery snapshot
 until the original CLI state is verified restored; `restore-cli` handles interrupted
 queries. Never force past an account-store lock or an unverified restoration.
 

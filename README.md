@@ -130,8 +130,13 @@ Claude／OpenCode 保留前台模式。已有 CI/CD 不等于获得部署授权�
 
 已在 Windows 实测 Assist 同会话问答，以及 Execution 读取 Wayfinder、运行失败
 测试、询问规范冲突、按答复修复并通过测试的完整流程。后台实测中，主线程两次结束
-本轮后分别被问题和完成通知唤醒，原 Pi 会话连续完成；分享版含 21 项离线回归测试。
+本轮后分别被问题和完成通知唤醒，原 Pi 会话连续完成；分享版含 22 项离线回归测试。
 远端 CI/CD 部署不属于这次实测范围。
+
+启用账号池后，不同 Pi 会话可并发，包括同账号调用和等待主线程答复的场景。
+每个会话使用独立 ACP 凭据及缓存目录，切号不改变其他会话；同一 Pi 会话仍只允许
+一个写入者，CLI 额度查询仍串行。已实测 A 等答时 B 完成、答复后 A 继续完成。
+原生会话凭据保存在用户目录，不能提交 Git；细节见配置文档。
 
 | 组件 | 仓库／文档 |
 | --- | --- |
@@ -159,14 +164,14 @@ Assist 的 `--schema` 由 Python `jsonschema` 校验；使用该参数或运行�
 `python -m pip install jsonschema`。`--conversation` 接收返回的精确 Pi 会话路径。
 Execution 的 `--auto-approve` 需要用户明确授权该任务，默认权限仍是 `default`。
 
-分享版取自 MyAgents `fcdd8c942d61ee2bcfdb7ab608b40256cec91483`，保留 MIT 许可、
+AGY 分享版取自 MyAgents `d9aa270a38bd4de60f226e463ee30fc93bcad013`，保留 MIT 许可、
 配套脚本和参考文件，去除个人部署元数据，并按本仓库目录调整离线测试。
 已完成多 Skills 文本调用、临时目录实现测试、真实额度耗尽切号和跨账号续接验收；
 未做性能对比，也未验证 macOS／Linux 的账号轮换。离线测试不调用模型：
 
 ```text
 python -m unittest discover -s tests -p "test_agy*.py"
-python -m unittest discover -s tests -p test_pi_accounts.py
+python -m unittest discover -s tests -p "test_pi*.py"
 ```
 
 ## 另外完整安装 Stop That Shit 和 Ponytail
