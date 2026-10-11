@@ -69,6 +69,20 @@ requirement an owning item.
 When a saved plan is needed, use the repository's established location and the user's
 requested format; do not impose a separate specification or a length target.
 
+Preserve acceptance meaning when decomposing or revising requirements: the objects and
+cases covered, each/all quantifiers, deadlines and their starting events, required
+observations, failure outcomes, and recovery coverage. Replacing per-event checks with
+an end-state check, dropping a case, or changing a required assertion to record-only is
+a contract change, not an implementation detail. State the old and proposed guarantee,
+reason and affected items; resolve it within existing authority before treating the
+weaker guarantee as settled. Do not request approval for equivalent implementation choices.
+
+When execution conditions change, recheck the affected failure and recovery paths. For
+example, unattended operation, a reboot, or a changed management channel can invalidate
+a reused startup guard. Identify where protection starts and ends and whether recovery
+still works when the component under test fails; do not infer whole-run coverage from
+the existence of a rollback command.
+
 ## Define work items
 
 Split only when an item has its own observable outcome and independent acceptance, or a
@@ -135,6 +149,13 @@ Distinguish planned checks from commands actually run and results observed. For 
 prefer a regression check that fails before the fix when practical; do not force test-first
 sequencing or per-item commits on every change.
 
+For consequential acceptance claims, connect the source requirement to the observation
+and actual pass/fail rule (or its planned location). Include the smallest counterexample
+that violates the promise while unrelated conditions remain healthy; the rule must reject
+it. A log or a test count is not this proof. For asynchronous or sampled observations,
+define when a sample is valid and what coverage is required. Missing coverage stays
+unverified, not passed; difficulty observing a condition does not silently make it optional.
+
 The implementer owns changed tests and narrow checks. Use an independent verifier when risk,
 the plan, or the user requires it, with the smallest authoritative suite for the acceptance
 boundary; do not assign the same unchanged suite to every role. Reuse sufficient evidence,
@@ -151,10 +172,13 @@ create universal ledgers, capsules, hashes, or report gates.
 Before presenting, check requirement coverage, cross-item contract consistency, dependency
 cycles, and unowned joins, and fix gaps in place. This is one self-check, not a reviewer
 dispatch or an iterative gate.
+Compare work items with their source requirements, not only with one another. Keep this
+trace in existing items or references; no separate matrix or report is required.
 
 When clean-action is explicitly active, use it to consolidate the execution path after
 coverage and interfaces are settled. Delegation routes, handoff, and acceptance belong to
-the applicable delegation-policy at execution time; the plan supplies items and ownership
+the runtime's delegation skill (`codex-delegation` or `claude-delegation` on those hosts)
+at execution time; the plan supplies items and ownership
 boundaries, not models, agent counts, or per-item reviewers.
 
 For a planning-only request, present the plan and stop. If the user already authorized
@@ -170,3 +194,6 @@ authorization defined above.
 - An implementation request remains authorized when planning is a necessary intermediate step.
 - Planning detail is sufficient when the executor can implement without inventing key
   requirements or shared contracts; brevity alone does not establish readiness.
+- A plan promised per-event checks while its execution specification checked only the
+  final state. Preserve acceptance semantics through decomposition and test a violating
+  case; internally consistent instructions and tests can still miss the original goal.

@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: Shared vocabulary and decision tests for designing deeper modules, choosing useful seams, and improving interface-level testability.
+description: Use when reasoning about module boundaries, interface depth, state ownership, or test seams. Supplies design criteria to proposal or code reviews; it does not run a review, scan a repository, or produce an execution plan by itself.
 ---
 
 # Codebase Design

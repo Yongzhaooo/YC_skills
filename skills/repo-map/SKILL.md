@@ -1,11 +1,12 @@
 ---
 name: repo-map
-description: Use when locating files, exact text, symbols, callers, or project knowledge in unfamiliar, multi-file, repository-wide, or architecture-sensitive work, and an agent must identify owners, execution paths, and change boundaries before implementing.
+description: Locate code ownership and trace affected paths when a task's entry point, dependencies, or change boundary is unclear. Use a broader repository map only for cross-module or architecture questions.
 ---
 
 # Repo Map
 
-Build a compact repository map before implementation.
+Locate the directly owning files first. Stop when the requested location or change
+boundary is clear; a local lookup does not need a repository map.
 
 Read applicable repository instructions first. Repository-local authority, retrieval,
 sensitivity, and maintenance rules override this generic policy.
@@ -17,7 +18,7 @@ repeating a wider version of the same search.
 Treat a stale or inconsistent project index as degraded. Exact or full-text evidence may
 remain usable with its warnings, but do not claim semantic retrieval is healthy.
 
-Map:
+When behavior crosses modules or the impact is unclear, trace only the relevant:
 - Entry points and user/system triggers.
 - Owning files and symbols.
 - Call chain or data flow through boundary layers.
@@ -25,11 +26,7 @@ Map:
 - Existing tests and verification commands.
 - Unknowns and the fastest check for each unknown.
 
-Return:
-- Primary owning path in order.
-- Critical files/symbols by layer.
-- Risky branch points and side effects.
-- Proposed write boundary for implementation.
-- Verification surface.
+Return the requested paths or symbols. For a broader map, include only the affected
+flow, meaningful risks, write boundary, and verification surface needed by the task.
 
 Stay in mapping mode unless the user has already asked for implementation.

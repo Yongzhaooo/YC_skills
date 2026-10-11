@@ -5,6 +5,7 @@ import argparse
 import json
 import math
 import os
+import re
 from pathlib import Path
 import shutil
 import signal
@@ -80,14 +81,23 @@ def stop_process(proc):
     proc.communicate(timeout=10)
 
 
-def run_agy(prompt, model, *, effort=None, schema=None, conversation=None, timeout=120):
+def run_agy(prompt, model, *, effort=None, schema=None, conversation=None, timeout=120, skill=None):
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("timeout must be a finite positive number")
     executable = shutil.which("agy")
     if not executable:
         raise ValueError("Official agy CLI is not on PATH; locate the existing installation first")
     args = [executable, "--input-format", "stream-json", "--output-format", "stream-json",
-            "--disable-slash-commands", "--model", model, "--print-timeout", f"{timeout}s"]
+            "--model", model, "--print-timeout", f"{timeout}s"]
+    if skill is not None:
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", skill) or len(skill) > 64:
+            raise ValueError("skill must be an installed skill name, not a command or path")
+        skill_file = Path.home() / ".gemini" / "config" / "skills" / skill / "SKILL.md"
+        if not skill_file.is_file():
+            raise ValueError(f"Selected Antigravity skill is not installed: {skill_file}")
+        prompt = f"/{skill}\n\n" + prompt
+    else:
+        args.append("--disable-slash-commands")
     if effort:
         args.extend(["--effort", effort])
     if conversation:
@@ -134,6 +144,7 @@ def main(argv=None):
     parser.add_argument("--effort", choices=("low", "medium", "high"))
     parser.add_argument("--schema", type=Path, help="JSON Schema file, enforced by agy")
     parser.add_argument("--conversation", help="Exact agy conversation ID; omitted means a new conversation")
+    parser.add_argument("--skill", help="Explicitly expand one installed text-only skill in print mode")
     parser.add_argument("--timeout", type=float, default=120, help="Wall-clock limit in seconds (default: 120)")
     options = parser.parse_args(argv)
     try:
@@ -142,7 +153,7 @@ def main(argv=None):
         if options.schema and not isinstance(schema, (dict, bool)):
             raise ValueError("Schema must be a JSON object or boolean")
         output = run_agy(prompt, options.model, effort=options.effort, schema=schema,
-                         conversation=options.conversation, timeout=options.timeout)
+                         conversation=options.conversation, timeout=options.timeout, skill=options.skill)
         code = 0
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
         output = {"ok": False, "error": str(exc)}

@@ -27,8 +27,8 @@ for the specified model; never infer a global mode from that choice.
 Use the live `spawn_agent` schema and current routing configuration. Honor an explicit
 user-selected route exactly; if unavailable, report the failure rather than substituting
 silently. If no configured route fits, keep the work in the main thread; do not add a fallback.
-Read `Codex delegation routes` in the configured global instructions for concrete bindings.
-Routing does not
+Read `Codex delegation routes` in the configured global instructions for concrete bindings
+(canonical source: `configs/codex/delegation-hotset/AGENTS.md`). Routing does not
 change the main model; do not probe or require a main-model switch unless the user made
 that exact setting a prerequisite. Check a required main binding against reliable session
 metadata or the user's stated setting; report a mismatch, and distinguish unverified

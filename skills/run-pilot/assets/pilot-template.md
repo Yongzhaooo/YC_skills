@@ -9,7 +9,7 @@ Updated: `YYYY-MM-DD`
 ## Binding
 
 - Source spec: `<repository-relative path or none>`
-- Source commit: `<git commit or none>`
+- Source state: `<commit, or working-tree status and a saved source snapshot/patch path>`
 - Selected slice: `<sections / acceptance IDs / bounded behavior>`
 - Separately gated actions: `<model calls / production / remote / irreversible>`
 

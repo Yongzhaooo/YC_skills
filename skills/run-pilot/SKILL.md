@@ -1,6 +1,6 @@
 ---
 name: run-pilot
-description: Run a small, bounded, reversible experiment to get evidence before committing to a design or rollout, with a resumable pilot.md.
+description: Run a bounded, reversible experiment when the user wants feasibility evidence before committing to a design or rollout. Keep a pilot.md only when the work needs durable recovery.
 ---
 
 # Run Pilot
@@ -22,10 +22,10 @@ spec is not a reason to refuse a pilot — consume only the slice you need.
 
 ## The Pilot Brief
 
-Before changing anything, locate an existing `pilot.md` or create one from
-`assets/pilot-template.md` — under `reports/experiments/<pilot-id>/`, or whatever
-convention the repository already uses. A single-turn check with no tracked writes needs
-only a conversation-only Pilot Card.
+For a single-turn check with no tracked writes, keep a conversation-only Pilot Card.
+When the work needs durable recovery, locate an existing `pilot.md` or create one from
+`assets/pilot-template.md` under `reports/experiments/<pilot-id>/`, or the repository's
+existing convention. Choose the brief before running the experiment.
 
 `pilot.md` is the durable resume document: a new session should continue from it without
 replaying finished work or rereading the conversation. Keep it concise — it is not a
@@ -36,9 +36,12 @@ budget, PASS/WEAK/FAIL/INVALID criteria, hard stop, and resume point. If they ar
 explicit, state them briefly and proceed — do not make the user reconfirm settled
 decisions. Status and result are separate fields: lifecycle (`ready`, `running`,
 `evaluated`, `stopped`) says where the pilot is; result (`pending`, `PASS`, `WEAK`,
-`FAIL`, `INVALID`) says what it found. When a source spec exists, record its path and the
-git commit and name the exact sections the pilot consumes; an approved spec does not by
-itself authorize paid calls, production changes, or anything else separately gated.
+`FAIL`, `INVALID`) says what it found. When a source spec exists, record its path,
+the exact sections the pilot consumes, and its source state. Use a commit when the
+consumed version is committed. For uncommitted content, record the working-tree status;
+when the brief must support later recovery, save the consumed version or patch beside it.
+Do not require a commit to run the pilot. An approved spec does not by itself authorize
+paid calls, production changes, or anything else separately gated.
 
 ## Pre-register the evidence seam
 
@@ -51,8 +54,8 @@ Before observing any treatment result:
 5. Define what counts as an execution-invalid run, and the retry rule for it.
 6. Record the cost, call, time, or file budget.
 
-Write this into `pilot.md` before running anything. That is the whole point: a criterion
-chosen after seeing the result is not a criterion.
+Record this in the selected Pilot Card or `pilot.md` before running the experiment.
+A criterion chosen after seeing the result is not a criterion.
 
 ## Implement and run
 
@@ -68,8 +71,8 @@ pre-registered.
 - **Do not rerun a structurally valid result because it is disappointing.**
 - **Do not tune thresholds after revealing treatment results.**
 
-Stop when the budget or a hard-stop condition is reached. Update `pilot.md` after each
-meaningful state transition and at the final handoff.
+Stop when the budget or a hard-stop condition is reached. Update the selected brief
+after each meaningful state transition and at the final handoff.
 
 ### Canary iteration rule
 
@@ -77,8 +80,9 @@ When a canary or disposable pilot fails on format, schema, or trivial protocol i
 (control characters, hash format, field naming, line-ending normalization), fix the
 template or request in place and retry the same run. Do not create a new pilot ID or
 evidence receipt for a format-only failure — start a new trial only when the hypothesis,
-model, or substantive protocol changes. Keep the format failure in the pilot directory as
-evidence, but do not let it multiply the iteration count: it is not a semantic result.
+model, or substantive protocol changes. Record the format failure in the Pilot Card or
+existing pilot directory, but do not let it multiply the iteration count: it is not a
+semantic result.
 
 ## Classify the result
 

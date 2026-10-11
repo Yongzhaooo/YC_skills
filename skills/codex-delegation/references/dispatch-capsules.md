@@ -79,8 +79,10 @@ is not proof, and extra review effort is not a reason to repeat unchanged checks
 
 ## Historical framework and external references
 
-The local framework comes from historical MyAgents designs on ticket context capsules
-and capsule-informed planning and delegation. Those designs established context compression in both directions, source recovery,
+The local framework comes from the historical designs
+`docs/specs/2026-07-24-ticket-context-capsules-and-progressive-retrieval-design.md` and
+`docs/specs/2026-07-27-capsule-informed-planning-and-delegation-design.md` in the canonical
+repository. They established context compression in both directions, source recovery,
 parent-owned decisions, and review that expands when evidence calls for it. Current
 policy supersedes their retired model-binding gates, mandatory hashes, ledgers and
 repair loops. Capsules project existing authority; they never create it.

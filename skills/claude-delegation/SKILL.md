@@ -19,7 +19,7 @@ needed.
 ## Route from live configuration
 
 Use the single configured main/executor route in `Claude delegation routes` in the
-global instructions. Do not offer a
+global instructions (canonical source: `configs/claude/delegation.md`). Do not offer a
 mode menu, choose a cheaper worker, or add an automatic expert/fallback route. The main
 thread keeps architecture, review and acceptance; children execute bounded assignments.
 Dispatch through the built-in Agent tool as the configuration describes; its model alias

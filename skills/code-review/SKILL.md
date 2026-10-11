@@ -1,51 +1,45 @@
 ---
 name: code-review
-description: Review changes since a commit, branch, tag, or merge-base against repository standards and the originating specification, and report actionable findings without editing the code.
+description: Review an existing diff against repository standards and intended behavior without editing code. Use proposal-review for an unimplemented approach and maintainer-review for deep long-term subsystem design scrutiny.
 ---
 
 # Code Review
 
-Review a fixed diff along two independent axes:
+Review a fixed diff on two axes:
 
-- **Standards** — documented repository rules and clear maintainability defects.
-- **Spec** — missing, incorrect, or unrequested behavior relative to the owning issue,
-  design, or user request.
+- **Standards:** repository rules and concrete maintainability defects.
+- **Spec:** missing, incorrect, or unrequested behavior relative to the owning request.
 
-The axes are separate perspectives, not a requirement to spawn separate agents.
-Use an independent reviewer only when the user asks or the risk justifies it.
+## Establish context
 
-## Establish the review boundary
+1. Identify the surface the user wants reviewed: unstaged, staged, the whole working
+   tree, or committed changes. Use a supplied base when one applies; otherwise use the
+   repository's documented review base. Ask only when the surface or base cannot be
+   determined safely.
+2. Inspect the chosen surface: `git diff` for unstaged changes, `git diff --cached`
+   for staged changes, both for the whole working tree, or `git diff <base>...HEAD`
+   and `git log <base>..HEAD --oneline` for committed changes. Include untracked files
+   in a working-tree review by reading them directly. Stop on an invalid ref or when
+   the selected surface has no changes.
+3. Read applicable repository rules and find the owning request/spec from supplied paths,
+   commit references, or nearby documentation. State when Spec coverage is unavailable.
+4. Inspect affected callers and existing mechanisms before judging the change.
 
-1. Resolve the fixed point supplied by the user. If none is given, use the repository's
-   documented review base; ask only when no safe base can be inferred.
-2. Inspect `git diff <base>...HEAD` and `git log <base>..HEAD --oneline`. Stop if the ref
-   is invalid or the diff is empty.
-3. Read applicable repository instructions and coding standards.
-4. Find the owning spec or issue from the user's path, commit references, or nearby
-   repository documentation. If none exists, review the Standards axis and state that
-   Spec coverage was unavailable.
+For requested deep subsystem review or a consequential interface, lifetime, or migration
+question, use [maintainer-review](../maintainer-review/SKILL.md) within the same verdict.
 
-Do not require a particular issue tracker, setup command, or repository layout.
+## Findings
 
-## Review
+Report defects introduced or exposed by the diff with concrete consequences. On the
+Spec axis, check missing behavior, unauthorized additions, and implementations that
+match literal wording but violate its observable intent. Duplication, speculative
+abstractions, pass-through wrappers, and scattered coordination are investigation leads,
+not automatic defects.
 
-Report only defects introduced or exposed by the diff that have a concrete effect.
-For each finding include severity, file and line, evidence, impact, and the smallest
-credible correction. Distinguish documented-rule violations from judgment calls.
+For each finding give severity, Standards/Spec label, file and line, evidence, impact,
+and the smallest credible correction. Distinguish documented rules from judgment calls,
+proven defects from evidence gaps, and blocking questions from optional preferences.
+A question blocks only when its answer changes the merge decision.
 
-Useful maintainability signals include duplicated logic, speculative abstraction,
-misleading names, pass-through wrappers, scattered changes for one behavior, and
-interfaces that leak implementation details. Do not turn this list into a mandatory
-smell checklist or report issues already enforced by tooling.
-
-On the Spec axis check:
-
-- requested behavior that is missing or partial;
-- behavior added without authority;
-- implementation that appears to satisfy the text but violates its observable intent.
-
-## Return
-
-Present findings by severity, retaining a `Standards` or `Spec` label on each. If there
-are no actionable findings, say so and name any material evidence gap. Do not pad the
-result with compliments, restate the diff, or create a report file unless requested.
+Return findings by severity in chat unless a report artifact was requested. If none are
+actionable, say so and identify any material evidence gap; omit diff recaps and filler.

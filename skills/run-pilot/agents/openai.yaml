@@ -1,4 +1,4 @@
 interface:
   display_name: "Run Pilot"
   short_description: "Run resumable, reversible feasibility pilots"
-  default_prompt: "Use $run-pilot to create or resume a spec-bound pilot.md, execute the bounded feasibility slice, and stop at the evidence gate."
+  default_prompt: "Use $run-pilot to run the bounded feasibility check, keep a Pilot Card or a resumable pilot.md as needed, and stop at the evidence."

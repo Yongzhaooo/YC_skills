@@ -6,6 +6,8 @@
 
 **搭配使用时，记得完整安装 Stop That Shit 和 Ponytail 两个插件。** 只安装本仓库，或只复制它们某一个 `SKILL.md`，都不等于装好了整套插件。安装命令见下文。
 
+2026-10-11：从 MyAgents 已审阅源码更新 `agy-assist` 及其余较旧技能，新增 `agy-execution`；`agy-assist` 仍要求调用方指定模型。
+
 2026-10-03：从 MyAgents 已审阅源码更新 `wayfinder`，将旧 `delegation-policy` 替换为 `codex-delegation` 和 `claude-delegation`。两个委派版本分别供 Codex 和 Claude Code 使用；模型路由由使用者的全局配置提供，未配置或工具无法表达时保留在主线程，不自动降级。
 
 ## 工作流
@@ -27,6 +29,7 @@
 | Skill | 何时使用 | 简单用法 |
 | --- | --- | --- |
 | `agy-assist` | 通过官方 agy CLI 将有边界的阅读、润色、文本清洗或第二意见交给 Antigravity，由主 Agent 核验。 | `$agy-assist 阅读这份材料，列出有来源依据的结论和未确定事项。` |
+| `agy-execution` | 把实现与测试交给官方 agy CLI 自主执行，由主 Agent 划定范围并独立验收交付。 | `$agy-execution 让 AGY 在这个目录实现并测试该修复，我来验收。` |
 | `repo-map` | 陌生、多文件或架构敏感的改动，需要先找入口、调用链和测试面。 | `$repo-map 找出支付回调从 HTTP 入口到订单状态更新的路径，并给出可修改边界。` |
 | `bounded-filesystem-cleanup-safety` | 清理会物理删除或破坏性移动文件、目录或不明确边界的数据。 | `$bounded-filesystem-cleanup-safety 检查这个清理范围是否可以安全执行。` |
 | `github-release-recovery` | 标签、Actions artifact 和 GitHub Release 状态不一致或发布流程失败时，分层诊断并恢复可复现发布。 | `$github-release-recovery 检查这个 tag 为什么没有生成可下载的 Release。` |
@@ -111,6 +114,10 @@ python scripts/agy_assist.py --model <agy-models中的模型ID> --prompt-file as
 输入文件使用 UTF-8；Windows 设置 `PYTHONUTF8=1` 和 `PYTHONIOENCODING=utf-8`。模型由调用方指定，可通过 `--schema` 请求结构化输出，通过 `--conversation` 接续该任务返回的准确会话 ID。此流程只用于文本协助，不授权外部 Agent 执行命令或修改文件；临时目录不是权限沙箱。
 
 分享版取自 MyAgents `650aaf4ecb90b7de75d1a536b756bdc4f951625b` 的 `skills/codex/agy-assist`，保留 MIT 许可，去除了个人部署元数据、固定模型和个人成本假设。离线验证：`python -m unittest discover -s tests -p test_agy_assist.py`；测试不调用模型。
+
+### agy-execution
+
+可用于 Codex 和 Claude Code。需先安装并登录官方 `agy` CLI；此 skill 只在用户明确要求 AGY 实现、修复或测试时使用，范围、授权和验收由主 Agent 负责。仅读文本、润色或第二意见请用 `agy-assist`。离线验证：`python -m unittest discover -s tests -p test_agy_execution.py`。
 
 ## 另外完整安装 Stop That Shit 和 Ponytail
 
