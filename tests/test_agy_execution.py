@@ -1,91 +1,113 @@
-"""Focused CLI boundary checks; no paid AGY call and no product modifications."""
+"""Pi transport boundaries with a real local child process and no model calls."""
 import importlib.util
 import json
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
-from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-SCRIPT = Path(__file__).resolve().parents[1] / "skills/agy-execution/scripts/agy_execution.py"
-SPEC = importlib.util.spec_from_file_location("agy_execution", SCRIPT)
-agy = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(agy)
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS = ROOT / "skills/agy-execution/scripts"
+sys.path.insert(0, str(SCRIPTS))
+import pi_transport as pi
+
+
+def events(response="中文完成", **changes):
+    message = {"role": "assistant", "content": [{"type": "text", "text": response}],
+               "stopReason": "stop", "provider": "antigravity-acp", "model": "test-model"}
+    message.update(changes)
+    return [{"type": "session", "id": "exact-id"},
+            {"type": "message_end", "message": message},
+            {"type": "agent_settled", "aborted": False}]
 
 
 class ExecutionTests(unittest.TestCase):
-    def test_terminal_failures_and_delivery_boundary(self):
-        good = {"status": "SUCCESS", "response": "Implemented; tests passed", "conversation_id": "example-id"}
-        with tempfile.TemporaryDirectory() as temp:
-            log = Path(temp) / "events.jsonl"
-            for result in (dict(good, response=""), dict(good, denied_actions=[{"action": "command"}]),
-                           dict(good, status="ERROR"), dict(good, error="failed"), None):
-                log.write_text(json.dumps({"event": "result", "result": result}), encoding="utf-8")
-                with self.assertRaises(ValueError):
-                    agy.terminal_result(log)
-            log.write_text(json.dumps({"event": "result", "result": good}), encoding="utf-8")
-            self.assertEqual(agy.terminal_result(log), good)
-            log.write_text(log.read_text(encoding="utf-8") + "\n" + log.read_text(encoding="utf-8"), encoding="utf-8")
-            with self.assertRaises(ValueError):
-                agy.terminal_result(log)
+    def test_settled_final_result_and_false_success(self):
+        with tempfile.TemporaryDirectory() as folder:
+            log = Path(folder) / "events.jsonl"
+            cases = [events(""), events(stopReason="error"), events()[:-1],
+                     events("Usage Limit Reached\nYou have reached your current quota for this period. Your limit will reset in 2 hours."),
+                     events() + [{"type": "agent_settled", "aborted": True}],
+                     events() + [{"type": "extension_error", "error": "broken"}],
+                     events() + [{"type": "tool_execution_end", "result": {"details": {
+                         "kind": "pi-antigravity-acp-permission-v1", "cancelled": True}}}]]
+            for case in cases:
+                log.write_text("\n".join(json.dumps(e) for e in case), encoding="utf-8")
+                with self.subTest(case=case), self.assertRaises(ValueError):
+                    pi.parse_events(log)
+            good = events("合法\u2028中文")
+            log.write_text("\n".join(json.dumps(e, ensure_ascii=False) for e in good), encoding="utf-8")
+            self.assertEqual(pi.parse_events(log)["response"], "合法\u2028中文")
+            good.insert(1, {"type": "tool_execution_start", "toolName": "read"})
+            log.write_text("\n".join(json.dumps(e) for e in good), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Text-only"):
+                pi.parse_events(log, text_only=True)
 
-    def test_utf8_process_evidence_and_explicit_approval(self):
-        real_popen = subprocess.Popen
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            prompt = root / "任务.txt"
-            prompt.write_text("实现并测试中文任务；只写临时目录", encoding="utf-8")
-            options = SimpleNamespace(cwd=root, prompt_file=prompt, output_dir=root / "run",
-                                      model=None, effort=None, conversation=None, auto_approve=False, timeout=10)
-            self.assertNotIn("--dangerously-skip-permissions", agy.command("agy", options))
-            options.auto_approve = True
-            options.conversation = "selected-id"
-            self.assertIn("--dangerously-skip-permissions", agy.command("agy", options))
-            self.assertIn("selected-id", agy.command("agy", options))
-            fake = ('import json,sys; p=json.loads(sys.stdin.readline()); '
-                    'assert "中文任务" in p["message"]["content"]; '
-                    'print(json.dumps({"event":"result","result":{"status":"SUCCESS",'
-                    '"response":"已实现","conversation_id":"selected-id"}},ensure_ascii=False))')
-            def launch(args, **kwargs):
-                return real_popen([sys.executable, "-c", fake], **kwargs)
-            with patch.object(agy.shutil, "which", return_value="agy"), patch.object(agy.subprocess, "Popen", side_effect=launch):
-                summary = agy.run(options)
+    def test_utf8_stdin_scoped_permissions_and_exact_resume(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            extension = root / "extension.ts"
+            extension.write_text("", encoding="utf-8")
+            fake = root / "fake.py"
+            fake.write_text("import json,sys\nfrom pathlib import Path\n"
+                "prompt=sys.stdin.read(); assert '中文' in prompt\n"
+                "p=Path(sys.argv[sys.argv.index('--session')+1])\n"
+                "p.write_text(json.dumps({'type':'session','cwd':str(Path.cwd())})+'\\n',encoding='utf-8')\n"
+                "for e in " + repr(events()) + ": print(json.dumps(e,ensure_ascii=False))\n", encoding="utf-8")
+            route = {"command": [sys.executable, str(fake)], "extension": str(extension),
+                     "model": "test-model", "effort": "medium"}
+            with patch.object(pi, "load_route", return_value=route):
+                result = pi.run_pi("中文\n$() harmless", cwd=root, output=root/"run", timeout=10)
+                session = result["conversation_id"]
+                self.assertEqual(result["response"], "中文完成")
+                config = root/"run/session.agent/antigravity-acp-provider/config.json"
+                self.assertEqual(json.loads(config.read_text())["permissions"], "default")
+                pi.run_pi("中文继续", cwd=root, output=root/"resume", conversation=session,
+                          auto_approve=True, timeout=10)
+                self.assertEqual(json.loads(config.read_text())["permissions"], "yolo")
+                process = json.loads((root/"resume/process.json").read_text())
+                self.assertEqual(process["args"][process["args"].index("--session")+1], session)
+                summary = json.loads((root/"resume/summary.json").read_text())
                 self.assertTrue(summary["invocation_complete"])
                 self.assertFalse(summary["delivery_accepted"])
-                self.assertEqual(summary["exit_code"], 0)
-                self.assertEqual(json.loads((options.output_dir / "result.json").read_text(encoding="utf-8"))["response"], "已实现")
                 with self.assertRaises(FileExistsError):
-                    agy.run(options)
+                    pi.run_pi("中文", cwd=root, output=root/"run")
+                with self.assertRaises(ValueError):
+                    pi.run_pi("中文", cwd=root/"run", output=root/"bad", conversation=session)
 
-    def test_nonzero_exit_and_timeout_preserve_failure_evidence(self):
-        real_popen = subprocess.Popen
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            prompt = root / "task.txt"
-            prompt.write_text("Only a local test", encoding="utf-8")
-            for name, source, expected, timeout in [
-                ("nonzero", "import sys; sys.stdin.read(); sys.exit(7)", ValueError, 10),
-                ("timeout", "import time; time.sleep(30)", subprocess.TimeoutExpired, 0.1),
-            ]:
-                options = SimpleNamespace(cwd=root, prompt_file=prompt, output_dir=root / name,
-                                          model=None, effort=None, conversation=None, auto_approve=False, timeout=timeout)
-                def launch(args, **kwargs):
-                    # Let stop_process use the real native taskkill when testing timeout.
-                    if args[0] == "taskkill":
-                        return real_popen(args, **kwargs)
-                    return real_popen([sys.executable, "-c", source], **kwargs)
-                with patch.object(agy.shutil, "which", return_value="agy"), patch.object(agy.subprocess, "Popen", side_effect=launch):
-                    with self.assertRaises(expected):
-                        agy.run(options)
-                summary = json.loads((options.output_dir / "summary.json").read_text(encoding="utf-8"))
+    def test_nonzero_timeout_and_route_mismatch(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            extension = root/"extension.ts"
+            extension.touch()
+            for name, source, timeout, error in [
+                ("exit", "import sys; sys.stdin.read(); sys.exit(7)", 10, ValueError),
+                ("timeout", "import time; time.sleep(30)", 0.1, subprocess.TimeoutExpired),
+                ("wrong-model", "import json; [print(json.dumps(e)) for e in " + repr(events(model="wrong")) + "]", 10, ValueError)]:
+                route = {"command": [sys.executable, "-c", source], "extension": str(extension), "model": "test-model"}
+                with patch.object(pi, "load_route", return_value=route), self.assertRaises(error):
+                    pi.run_pi("task", cwd=root, output=root/name, timeout=timeout)
+                summary = json.loads((root/name/"summary.json").read_text())
                 self.assertFalse(summary["invocation_complete"])
-                self.assertFalse(summary["delivery_accepted"])
                 self.assertIsNotNone(summary["exit_code"])
-                self.assertIn("error", summary)
-                if name == "nonzero":
-                    self.assertEqual(summary["exit_code"], 7)
+            for timeout in (0, -1, float("nan")):
+                with self.assertRaises(ValueError):
+                    pi.run_pi("task", cwd=root, output=root/"invalid", timeout=timeout)
+            with self.assertRaises(ValueError):
+                pi.run_pi("task", cwd=root, output=root/"invalid", text_only=True, auto_approve=True)
+
+    def test_transport_copies_match_and_selected_skill(self):
+        for helper in ("pi_transport.py", "pi_accounts.py", "pi_cli_quota.ps1"):
+            source = (SCRIPTS/helper).read_bytes()
+            self.assertEqual(source, (ROOT/"skills/agy-assist/scripts"/helper).read_bytes())
+        with tempfile.TemporaryDirectory() as folder:
+            skill = Path(folder)/"SKILL.md"
+            skill.write_text("text only", encoding="utf-8")
+            self.assertEqual(pi.resolve_skill(str(skill.parent)), skill)
+            with self.assertRaises(ValueError):
+                pi.resolve_skill("missing-uninstalled-skill")
 
 
 if __name__ == "__main__":

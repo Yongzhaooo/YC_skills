@@ -6,7 +6,7 @@
 
 **搭配使用时，记得完整安装 Stop That Shit 和 Ponytail 两个插件。** 只安装本仓库，或只复制它们某一个 `SKILL.md`，都不等于装好了整套插件。安装命令见下文。
 
-2026-10-11：从 MyAgents 已审阅源码更新 `agy-assist` 及其余较旧技能，新增 `agy-execution`；`agy-assist` 仍要求调用方指定模型。
+2026-10-11：`agy-assist` 与 `agy-execution` 已迁移到 Pi + Antigravity ACP，支持主线程传入上下文摘要、Codex／Claude Skills 和精确会话续接；Windows 可选启用额度耗尽后的自动切号。安装与上游链接见下文。
 
 2026-10-03：从 MyAgents 已审阅源码更新 `wayfinder`，将旧 `delegation-policy` 替换为 `codex-delegation` 和 `claude-delegation`。两个委派版本分别供 Codex 和 Claude Code 使用；模型路由由使用者的全局配置提供，未配置或工具无法表达时保留在主线程，不自动降级。
 
@@ -28,8 +28,8 @@
 
 | Skill | 何时使用 | 简单用法 |
 | --- | --- | --- |
-| `agy-assist` | 通过官方 agy CLI 将有边界的阅读、润色、文本清洗或第二意见交给 Antigravity，由主 Agent 核验。 | `$agy-assist 阅读这份材料，列出有来源依据的结论和未确定事项。` |
-| `agy-execution` | 把实现与测试交给官方 agy CLI 自主执行，由主 Agent 划定范围并独立验收交付。 | `$agy-execution 让 AGY 在这个目录实现并测试该修复，我来验收。` |
+| `agy-assist` | 通过 Pi + Antigravity ACP 将有边界的阅读、润色、文本清洗或第二意见交给 Antigravity，由主 Agent 核验。 | `$agy-assist 阅读这份材料，列出有来源依据的结论和未确定事项。` |
+| `agy-execution` | 把实现与测试交给 Pi + Antigravity ACP 执行，由主 Agent 划定范围并独立验收交付。 | `$agy-execution 让 AGY 在这个目录实现并测试该修复，我来验收。` |
 | `repo-map` | 陌生、多文件或架构敏感的改动，需要先找入口、调用链和测试面。 | `$repo-map 找出支付回调从 HTTP 入口到订单状态更新的路径，并给出可修改边界。` |
 | `bounded-filesystem-cleanup-safety` | 清理会物理删除或破坏性移动文件、目录或不明确边界的数据。 | `$bounded-filesystem-cleanup-safety 检查这个清理范围是否可以安全执行。` |
 | `github-release-recovery` | 标签、Actions artifact 和 GitHub Release 状态不一致或发布流程失败时，分层诊断并恢复可复现发布。 | `$github-release-recovery 检查这个 tag 为什么没有生成可下载的 Release。` |
@@ -97,27 +97,62 @@ npx skills update repo-map
 
 这三个分享版取自 MyAgents `16def2a4caac968a02c43d121780ee80d24315ee`，保留配套参考文件、UI 元数据和来源许可，去除个人部署元数据及未随包提供的私有配置路径。`wayfinder` 新增结果判断、当前焦点和可选里程碑，并按证据重新判断下一步；不会因存在下一步就自动授权执行。
 
-### agy-assist
+### AGY Assist 与 Execution：Pi 配置
 
-可用于 Codex 和 OpenCode。先安装官方 `agy` CLI 并完成登录，确保 `agy --version` 和 `agy models` 可用；安装此 skill 不会安装 CLI 或配置账号。
-
-```bash
-npx skills@latest add Yongzhaooo/YC_skills --skill agy-assist
-```
-
-也可在 skill 目录直接运行配套脚本（仅依赖 Python 标准库）：
+两个 skill 可用于 Codex、Claude Code 和 OpenCode。主线程整理必要摘要、自动选择
+可读的 Codex／Claude Skills，再传给 Pi 中的 AGY；无需把整个技能库复制到 Pi。
+Assist 用于文本任务，Execution 用于实现和测试。模型从本机路由读取，也可显式指定。
 
 ```bash
-python scripts/agy_assist.py --model <agy-models中的模型ID> --prompt-file assignment.txt --input-file source.txt
+npx skills@latest add Yongzhaooo/YC_skills --skill agy-assist --skill agy-execution
+npm install -g @earendil-works/pi-coding-agent@1.1.0
+pi install npm:pi-antigravity-acp-provider@0.1.14
 ```
 
-输入文件使用 UTF-8；Windows 设置 `PYTHONUTF8=1` 和 `PYTHONIOENCODING=utf-8`。模型由调用方指定，可通过 `--schema` 请求结构化输出，通过 `--conversation` 接续该任务返回的准确会话 ID。此流程只用于文本协助，不授权外部 Agent 执行命令或修改文件；临时目录不是权限沙箱。
+安装后在 Pi 中执行 `/login antigravity-acp`，选择 Google 并完成浏览器登录；先将
+`/antigravity-acp permissions default` 设好，再用 `/model` 选可用模型。首次会下载
+官方 ACP 运行时。Pi 和 provider 是第三方开源组件。安装 skill 不会自动安装这些依赖
+或创建账号配置。
 
-分享版取自 MyAgents `650aaf4ecb90b7de75d1a536b756bdc4f951625b` 的 `skills/codex/agy-assist`，保留 MIT 许可，去除了个人部署元数据、固定模型和个人成本假设。离线验证：`python -m unittest discover -s tests -p test_agy_assist.py`；测试不调用模型。
+完整配置、`agy-runner.json` 模板、上下文和 Skills 用法、权限及恢复边界见
+[Pi ACP 配置文档](skills/agy-execution/references/pi-setup.md)；
+[Assist 也附带独立副本](skills/agy-assist/references/pi-setup.md)，单独安装即可阅读。
 
-### agy-execution
+| 组件 | 仓库／文档 |
+| --- | --- |
+| Pi | [earendil-works/pi](https://github.com/earendil-works/pi)、[coding-agent 文档](https://github.com/earendil-works/pi/tree/main/packages/coding-agent) |
+| Antigravity ACP provider | [zacbemis/pi-antigravity-acp-provider](https://github.com/zacbemis/pi-antigravity-acp-provider) |
+| Windows CLI 账号管理器 fork | [Yongzhaooo/agy-profile](https://github.com/Yongzhaooo/agy-profile)，本次核对版本 [f52cbb0](https://github.com/Yongzhaooo/agy-profile/tree/f52cbb0e65e6b1968d59c2b5686a84cb124bc346) |
+| 账号管理器上游 | [haclongkim/agy-profile](https://github.com/haclongkim/agy-profile) |
 
-可用于 Codex 和 Claude Code。需先安装并登录官方 `agy` CLI；此 skill 只在用户明确要求 AGY 实现、修复或测试时使用，范围、授权和验收由主 Agent 负责。仅读文本、润色或第二意见请用 `agy-assist`。离线验证：`python -m unittest discover -s tests -p test_agy_execution.py`。
+切号是可选配置：先在上述管理器保存 CLI profiles，再为同一批账号分别完成 ACP
+登录并运行 `pi_accounts.py enroll` 自动匹配身份，最后启用路由中的 `rotation`。
+本仓库的适配器负责 ACP 快照和自动恢复；`agy-profile` 管理 CLI profiles 和额度查询。
+当前适配器依赖该管理器的 PowerShell 函数及文件布局，核对过的 fork 与本次实测安装
+一致；未声称上游未来版本始终兼容。ACP 快照使用 Windows DPAPI，跨平台用户先关闭
+轮换使用单账号，不应把 Windows 凭据复制到其他机器。
+
+从已安装的 skill 目录调用：
+
+```text
+python scripts/agy_assist.py --prompt-file assignment.txt --input-file source.txt --skill <SKILL.md绝对路径>
+python scripts/agy_execution.py --cwd <工程目录> --prompt-file assignment.txt --output-dir <新证据目录> --skill <SKILL.md绝对路径>
+```
+
+输入使用 UTF-8；Windows 设置 `PYTHONUTF8=1` 和 `PYTHONIOENCODING=utf-8`。
+Assist 的 `--schema` 由 Python `jsonschema` 校验；使用该参数或运行相关测试前安装
+`python -m pip install jsonschema`。`--conversation` 接收返回的精确 Pi 会话路径。
+Execution 的 `--auto-approve` 需要用户明确授权该任务，默认权限仍是 `default`。
+
+分享版取自 MyAgents `fcdd8c942d61ee2bcfdb7ab608b40256cec91483`，保留 MIT 许可、
+配套脚本和参考文件，去除个人部署元数据，并按本仓库目录调整离线测试。
+已完成多 Skills 文本调用、临时目录实现测试、真实额度耗尽切号和跨账号续接验收；
+未做性能对比，也未验证 macOS／Linux 的账号轮换。离线测试不调用模型：
+
+```text
+python -m unittest discover -s tests -p "test_agy*.py"
+python -m unittest discover -s tests -p test_pi_accounts.py
+```
 
 ## 另外完整安装 Stop That Shit 和 Ponytail
 
