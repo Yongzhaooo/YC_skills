@@ -41,7 +41,7 @@ def main():
     parser.add_argument("--conversation", help="Exact Pi session.jsonl path; CLI conversation IDs are not compatible")
     parser.add_argument("--skill", action="append", default=[], help="Selected installed skill name or SKILL.md path")
     parser.add_argument("--skill-reference", action="append", default=[], help="Selected UTF-8 reference inside a selected skill")
-    parser.add_argument("--auto-approve", action="store_true", help="Requires explicit human authorization for this invocation")
+    parser.add_argument("--auto-approve", action="store_true", help="Approve tools within the authorized task; an explicit request for AGY execution supplies this authority")
     parser.add_argument("--background", action="store_true", help="Notify this Codex Desktop thread; requires human authorization to message it")
     parser.add_argument("--reply-timeout", type=float, default=900, help="Seconds to wait for a primary reply; separate from active timeout")
     parser.add_argument("--timeout", type=float, help="Optional active execution limit in seconds")

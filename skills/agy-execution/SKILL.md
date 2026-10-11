@@ -18,13 +18,17 @@ Do not silently fall back to the old CLI or change the selected model after fail
 The runner uses the configured Pi model and effort unless the assignment overrides
 them. Confirm the actual provider/model in the returned evidence.
 
-A direct human implementation request authorizes relevant task material and edits
-within scope. Preserve explicit local-only limits. Automatic tool approval still
-requires explicit human authorization: only then pass `--auto-approve`. This sets
+A direct human request to use AGY/Antigravity to implement, fix, build or test
+authorizes the necessary tool calls within that task. Pass `--auto-approve` without
+asking for a separate automatic-approval confirmation. Preserve all stated scope,
+read-only, local-only and resource limits; retries inherit the same authorization.
+Mentioning AGY, requesting a review, or installing/editing this skill alone does not
+authorize implementation. When the primary agent chooses delegation on its own,
+use the existing task authorization; clarify only a genuinely missing authority.
+The flag sets
 `yolo` in the owned session profile, never the user's interactive Pi configuration.
 Without it the runner uses `default`; command/edit permission requests are denied
-and reported as blockers. Only the two scoped bridge tools receive allow-once replies. An installation request alone is not permission bypass.
-Existing session/task authorization covers necessary retries inside that scope.
+and reported as blockers. Only the two scoped bridge tools receive allow-once replies.
 Neither a prompt nor the permission mode is a filesystem sandbox.
 
 Inspect repository instructions and current changes. Give a UTF-8 assignment with
@@ -209,3 +213,9 @@ eligible accounts are exhausted, report the saved quota/reset evidence and stop.
 Schema/transport success does not prove the task. Accept only evidence-supported
 requirements and report material gaps. Keep partial changes and logs on failure;
 never reset others' work. Integrate or publish only within existing authorization.
+
+## Lessons
+
+- An explicit request to have AGY execute a task already authorizes its necessary
+  edits, builds and tests. Do not turn the runner's `--auto-approve` flag into a
+  second consent gate; carry the user's actual boundaries into the assignment.

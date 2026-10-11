@@ -71,8 +71,10 @@ explicitly. Project AGENTS.md is discovered for execution, but not text assistan
 The runner uses Pi RPC with the bundled `primary_bridge.ts` extension. Assist enables
 only `ask_primary`, `inspect_context` and the provider's permission adapter. The two
 bridge operations receive validated allow-once replies in default mode; arbitrary
-command/edit permissions are cancelled. Execution `--auto-approve` still requires
-explicit human authorization for that assignment. Native Antigravity tools are not
+command/edit permissions are cancelled. An explicit user request for AGY execution
+authorizes necessary edits, builds and tests within that assignment: pass Execution
+`--auto-approve` without a separate confirmation. Preserve stated scope and limits;
+merely installing or discussing AGY does not authorize execution. Native Antigravity tools are not
 a filesystem sandbox. ACP reconstruction can truncate older conversation, so verify
 important continuity.
 The original CLI quota/selection policy is reused by the ACP account adapter below;

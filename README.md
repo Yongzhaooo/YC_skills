@@ -162,9 +162,11 @@ python scripts/agy_execution.py --cwd <工程目录> --prompt-file assignment.tx
 输入使用 UTF-8；Windows 设置 `PYTHONUTF8=1` 和 `PYTHONIOENCODING=utf-8`。
 Assist 的 `--schema` 由 Python `jsonschema` 校验；使用该参数或运行相关测试前安装
 `python -m pip install jsonschema`。`--conversation` 接收返回的精确 Pi 会话路径。
-Execution 的 `--auto-approve` 需要用户明确授权该任务，默认权限仍是 `default`。
+用户明确要求 AGY 实施、修复、构建或测试，即授权范围内的必要工具调用；主线程直接
+传 Execution 的 `--auto-approve`，无需再问一次。只读和资源等限制仍须遵守；仅安装
+或讨论技能不构成执行授权。未传参数时，runner 仍使用 `default` 权限。
 
-AGY 分享版取自 MyAgents `d9aa270a38bd4de60f226e463ee30fc93bcad013`，保留 MIT 许可、
+AGY 分享版取自 MyAgents `37c84eb`，保留 MIT 许可、
 配套脚本和参考文件，去除个人部署元数据，并按本仓库目录调整离线测试。
 已完成多 Skills 文本调用、临时目录实现测试、真实额度耗尽切号和跨账号续接验收；
 未做性能对比，也未验证 macOS／Linux 的账号轮换。离线测试不调用模型：
