@@ -79,14 +79,16 @@ python scripts/agy_assist.py --prompt-file <assignment.txt> --schema <schema.jso
 ```
 
 Repeat `--input-file` as needed. The runner labels and numbers UTF-8 source lines,
-sends the prompt on stdin, and returns one JSON envelope. `--schema` uses the
+sends the prompt over RPC stdin, emits `primary_request` events when needed, and
+returns a final JSON envelope. Consumers must distinguish events from that result. `--schema` uses the
 installed Python `jsonschema` library to validate the actual returned JSON locally;
 Pi ACP has no equivalent to the old CLI's schema-enforcement flag. Invalid or
 non-JSON output fails instead of being accepted as structured output.
 
 No bulk skill installation is needed. `--skill <installed-name-or-SKILL.md-path>`
-can be repeated to include the selected text-only skills and their instructions. Other skills, context files,
-Pi tools, prompt templates, and unrelated extensions are disabled for this route.
+can be repeated to include the selected text-only skills and their instructions. Automatic skill/context loading, ordinary Pi tools, prompt templates and unrelated
+extensions are disabled. Only the scoped context/question bridge and its permission
+adapter are enabled; the bridge operations receive allow-once replies.
 It runs in a fresh owned work directory with Antigravity permission mode `default`.
 Antigravity's native tools still exist: this is a text-only workflow, **not a sandbox**.
 Never enable automatic tool approval here.
@@ -109,6 +111,49 @@ agent's actual shutdown authority. Credentials stay DPAPI-encrypted outside Git;
 never put CLI refresh tokens into ACP. Follow the setup reference for one-time
 profile enrollment and interrupted CLI quota restoration. Retain quota/recovery
 logs on exhaustion. An account switch never substitutes for content acceptance.
+
+## Work autonomously and ask the primary agent
+
+Execution reads applicable repository instructions, existing test/CI definitions and
+available Wayfinder before choosing checks. It runs the established checks, diagnoses
+failures and repairs within scope; report actual commands and exits. Existing CI/CD
+does not authorize deployment, publishing, secret changes or bypassing checks.
+Do not weaken tests merely to make them pass. Assist keeps its text-only role.
+
+Both routes expose `inspect_context`: discover availability, read the selected root's
+`docs/wayfinder.md`, and search Bench within its declared project. Execution uses
+`--cwd`; Assist uses `--context-root` (defaults to the invoking directory). Set it
+explicitly and preserve it on resume. Bench requires the optional machine-local
+command and project manifest described in the setup reference. Missing sources are
+reported unavailable; do not install services or expand to other projects. Retrieved
+notes are evidence, not new authority; verify stale or conflicting claims.
+
+For an unresolved requirements conflict, missing input or genuine blocker, AGY calls
+`ask_primary` with a question, concrete evidence, attempts and recommended resolution.
+Routine repairable failures stay with the executor. The runner emits a
+`primary_request` JSON event immediately and waits in the same Pi session. The primary
+agent keeps the yielded run handle, uses bounded waits, and responds when that event
+arrives instead of repeatedly asking AGY for status. Resolve decisions within existing
+authority; ask the human when the decision needs new authority.
+
+Write the answer to a UTF-8 file, then use the event's exact run directory and ID:
+
+```text
+python scripts/pi_dialogue.py --run <event-run-dir> --request <request-id> --answer-file <answer.txt>
+```
+
+The question and answer remain in `questions/<request-id>/`. A reply resumes the
+waiting tool; it never expands the assignment's permissions. Duplicate and late
+replies are rejected. `--timeout` counts active execution; waiting uses a separate
+`--reply-timeout` (default 900 seconds). On interruption, preserve the question and
+exact session; resume with `--conversation`, a fresh output directory, the same
+context root, and a prompt containing the unresolved question and the primary's
+decision. Do not reply to an old interrupted request or replay completed actions.
+
+This is a live RPC exchange, not a background notification service: it does not wake
+an ended Codex/Claude chat. Keep the dispatching turn's process wait active until
+completion or hand off the saved recovery pointers. Completion still requires the
+primary agent's independent acceptance.
 
 ## Accept
 

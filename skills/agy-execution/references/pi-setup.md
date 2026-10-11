@@ -65,13 +65,16 @@ not changed by per-run permission settings.
 For executor skills pass selected already-installed paths with `--skill`; Pi accepts
 standard SKILL.md resources. Do not install AGY delegation skills inside this leaf
 executor, or mirror the whole Codex/Claude plugin cache. Text assistance embeds the
-selected skill body without enabling Pi tools; supply any required reference text
+selected skill body with only scoped context/question tools; supply any required reference text
 explicitly. Project AGENTS.md is discovered for execution, but not text assistance.
 
-Known limits: JSON mode cannot ask a human for ACP approval; prompting permissions
-are denied. `--auto-approve` is available only for an explicitly authorized execution
-run. Native Antigravity tools are not controlled by Pi's `--no-tools`. ACP history
-reconstruction can truncate older conversation, so verify important continuity.
+The runner uses Pi RPC with the bundled `primary_bridge.ts` extension. Assist enables
+only `ask_primary`, `inspect_context` and the provider's permission adapter. The two
+bridge operations receive validated allow-once replies in default mode; arbitrary
+command/edit permissions are cancelled. Execution `--auto-approve` still requires
+explicit human authorization for that assignment. Native Antigravity tools are not
+a filesystem sandbox. ACP reconstruction can truncate older conversation, so verify
+important continuity.
 The original CLI quota/selection policy is reused by the ACP account adapter below;
 its credentials remain separate.
 
@@ -157,3 +160,28 @@ switches, and `quota.json` records remaining quota and reset times. The Pi sessi
 path remains exact. ACP bindings are invalidated across accounts; the saved Pi
 transcript reconstructs context and the continuation prohibits duplicate external
 actions. Inspect old context/artifacts if reconstruction omitted important history.
+
+## Primary dialogue, Wayfinder and Bench
+
+Both runners emit newline-delimited JSON `primary_request` events while the process
+is running. Use the exact event `run_dir` and `request_id` with `pi_dialogue.py --run
+<run-dir> --request <id> --answer-file <utf8-file>`. Keep waiting on the original process
+for the final envelope. Host integrations must surface intermediate stdout, not buffer
+everything until exit. No daemon, chat-message API or session-database reader is used.
+This cannot wake an already ended host chat. Interruption recovery is in SKILL.md.
+
+`inspect_context` reads `docs/wayfinder.md` under Execution's `--cwd` or Assist's
+`--context-root`. For Bench, the selected root must contain `bench-project.json` with
+a nonempty `project` string. Add an optional command array to machine-local routing:
+
+```json
+"bench_command": ["/absolute/path/to/python", "/absolute/path/to/bench.py"]
+```
+
+The command must implement the existing Bench CLI `--search <query> --project <name>`
+JSON contract. Returned hits must have that project; mismatches fail closed. Queries
+return at most eight excerpts of 5,000 characters, with source/version metadata and
+truncation flags. Wayfinder reads at most 24,000 characters. For additional material,
+Execution follows source paths within its authorized scope; Assist asks the primary
+to supply it. No configured Bench or no Wayfinder is a supported unavailable result.
+This installs neither Bench nor credentials and never broadens a search globally.

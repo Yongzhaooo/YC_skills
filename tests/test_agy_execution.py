@@ -52,10 +52,13 @@ class ExecutionTests(unittest.TestCase):
             extension.write_text("", encoding="utf-8")
             fake = root / "fake.py"
             fake.write_text("import json,sys\nfrom pathlib import Path\n"
-                "prompt=sys.stdin.read(); assert '中文' in prompt\n"
+                "json.loads(sys.stdin.readline())\n"
+                "print(json.dumps({'type':'response','id':'initial-state','success':True,'data':{'sessionId':'exact-id'}}),flush=True)\n"
+                "prompt=json.loads(sys.stdin.readline())['message']; assert '中文' in prompt\n"
+                "print(json.dumps({'type':'agent_start'}),flush=True)\n"
                 "p=Path(sys.argv[sys.argv.index('--session')+1])\n"
                 "p.write_text(json.dumps({'type':'session','cwd':str(Path.cwd())})+'\\n',encoding='utf-8')\n"
-                "for e in " + repr(events()) + ": print(json.dumps(e,ensure_ascii=False))\n", encoding="utf-8")
+                "for e in " + repr(events()) + ": print(json.dumps(e,ensure_ascii=False),flush=True)\n", encoding="utf-8")
             route = {"command": [sys.executable, str(fake)], "extension": str(extension),
                      "model": "test-model", "effort": "medium"}
             with patch.object(pi, "load_route", return_value=route):
@@ -83,9 +86,9 @@ class ExecutionTests(unittest.TestCase):
             extension = root/"extension.ts"
             extension.touch()
             for name, source, timeout, error in [
-                ("exit", "import sys; sys.stdin.read(); sys.exit(7)", 10, ValueError),
+                ("exit", "import sys; sys.exit(7)", 10, ValueError),
                 ("timeout", "import time; time.sleep(30)", 0.1, subprocess.TimeoutExpired),
-                ("wrong-model", "import json; [print(json.dumps(e)) for e in " + repr(events(model="wrong")) + "]", 10, ValueError)]:
+                ("wrong-model", "import json; [print(json.dumps(e)) for e in " + repr([{"type":"agent_start"}, *events(model="wrong")]) + "]", 10, ValueError)]:
                 route = {"command": [sys.executable, "-c", source], "extension": str(extension), "model": "test-model"}
                 with patch.object(pi, "load_route", return_value=route), self.assertRaises(error):
                     pi.run_pi("task", cwd=root, output=root/name, timeout=timeout)
@@ -99,7 +102,7 @@ class ExecutionTests(unittest.TestCase):
                 pi.run_pi("task", cwd=root, output=root/"invalid", text_only=True, auto_approve=True)
 
     def test_transport_copies_match_and_selected_skill(self):
-        for helper in ("pi_transport.py", "pi_accounts.py", "pi_cli_quota.ps1"):
+        for helper in ("pi_transport.py", "pi_accounts.py", "pi_cli_quota.ps1", "pi_dialogue.py", "primary_bridge.ts"):
             source = (SCRIPTS/helper).read_bytes()
             self.assertEqual(source, (ROOT/"skills/agy-assist/scripts"/helper).read_bytes())
         with tempfile.TemporaryDirectory() as folder:

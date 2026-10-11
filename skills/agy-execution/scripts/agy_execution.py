@@ -17,10 +17,16 @@ def run(options):
         raise ValueError("Assignment is empty")
     boundary = ("You implement and test this assignment as a leaf agent. Do not delegate. "
                 "Preserve others' changes and the stated write/production boundaries. "
+                "Read applicable repository instructions and existing test/CI definitions before choosing checks. "
+                "Use the project's established validation commands, investigate failures and repair within scope. "
+                "Read available Wayfinder and relevant project-scoped Bench context. "
+                "Ask the primary agent only for unresolved conflicts, missing requirements or genuine blockers. "
+                "Existing CI/CD does not authorize deployment, publishing or changing secrets. "
                 "The primary agent independently accepts your delivery.\n\n")
     run_pi(boundary + prompt, cwd=options.cwd, output=options.output_dir,
            model=options.model, effort=options.effort, conversation=options.conversation,
            timeout=options.timeout, auto_approve=options.auto_approve,
+           context_root=options.cwd, reply_timeout=options.reply_timeout,
            skills=getattr(options, "skill", []), skill_references=getattr(options, "skill_reference", []))
     return json.loads((options.output_dir / "summary.json").read_text(encoding="utf-8"))
 
@@ -36,7 +42,8 @@ def main():
     parser.add_argument("--skill", action="append", default=[], help="Selected installed skill name or SKILL.md path")
     parser.add_argument("--skill-reference", action="append", default=[], help="Selected UTF-8 reference inside a selected skill")
     parser.add_argument("--auto-approve", action="store_true", help="Requires explicit human authorization for this invocation")
-    parser.add_argument("--timeout", type=float, help="Optional wall-clock limit in seconds")
+    parser.add_argument("--reply-timeout", type=float, default=900, help="Seconds to wait for a primary reply; separate from active timeout")
+    parser.add_argument("--timeout", type=float, help="Optional active execution limit in seconds")
     options = parser.parse_args()
     try:
         print(json.dumps(run(options), ensure_ascii=False))

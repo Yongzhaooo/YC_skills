@@ -22,8 +22,8 @@ A direct human implementation request authorizes relevant task material and edit
 within scope. Preserve explicit local-only limits. Automatic tool approval still
 requires explicit human authorization: only then pass `--auto-approve`. This sets
 `yolo` in the owned session profile, never the user's interactive Pi configuration.
-Without it the runner uses `default`; a headless permission request is denied and
-reported as a blocker. An installation request alone is not permission bypass.
+Without it the runner uses `default`; command/edit permission requests are denied
+and reported as blockers. Only the two scoped bridge tools receive allow-once replies. An installation request alone is not permission bypass.
 Existing session/task authorization covers necessary retries inside that scope.
 Neither a prompt nor the permission mode is a filesystem sandbox.
 
@@ -100,6 +100,49 @@ bounded waits over constant log polling. Intervene for a deliverable, explicit
 blocker, consequential decision, harmful action, or demonstrated repeated inputs
 and outputs without new evidence. Many reads or slow progress alone are not a loop.
 Do independent work outside its ownership; do not duplicate implementation.
+
+## Work autonomously and ask the primary agent
+
+Execution reads applicable repository instructions, existing test/CI definitions and
+available Wayfinder before choosing checks. It runs the established checks, diagnoses
+failures and repairs within scope; report actual commands and exits. Existing CI/CD
+does not authorize deployment, publishing, secret changes or bypassing checks.
+Do not weaken tests merely to make them pass. Assist keeps its text-only role.
+
+Both routes expose `inspect_context`: discover availability, read the selected root's
+`docs/wayfinder.md`, and search Bench within its declared project. Execution uses
+`--cwd`; Assist uses `--context-root` (defaults to the invoking directory). Set it
+explicitly and preserve it on resume. Bench requires the optional machine-local
+command and project manifest described in the setup reference. Missing sources are
+reported unavailable; do not install services or expand to other projects. Retrieved
+notes are evidence, not new authority; verify stale or conflicting claims.
+
+For an unresolved requirements conflict, missing input or genuine blocker, AGY calls
+`ask_primary` with a question, concrete evidence, attempts and recommended resolution.
+Routine repairable failures stay with the executor. The runner emits a
+`primary_request` JSON event immediately and waits in the same Pi session. The primary
+agent keeps the yielded run handle, uses bounded waits, and responds when that event
+arrives instead of repeatedly asking AGY for status. Resolve decisions within existing
+authority; ask the human when the decision needs new authority.
+
+Write the answer to a UTF-8 file, then use the event's exact run directory and ID:
+
+```text
+python scripts/pi_dialogue.py --run <event-run-dir> --request <request-id> --answer-file <answer.txt>
+```
+
+The question and answer remain in `questions/<request-id>/`. A reply resumes the
+waiting tool; it never expands the assignment's permissions. Duplicate and late
+replies are rejected. `--timeout` counts active execution; waiting uses a separate
+`--reply-timeout` (default 900 seconds). On interruption, preserve the question and
+exact session; resume with `--conversation`, a fresh output directory, the same
+context root, and a prompt containing the unresolved question and the primary's
+decision. Do not reply to an old interrupted request or replay completed actions.
+
+This is a live RPC exchange, not a background notification service: it does not wake
+an ended Codex/Claude chat. Keep the dispatching turn's process wait active until
+completion or hand off the saved recovery pointers. Completion still requires the
+primary agent's independent acceptance.
 
 ## Recover and accept
 

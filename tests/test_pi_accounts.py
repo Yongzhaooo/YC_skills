@@ -98,11 +98,11 @@ class AccountTests(unittest.TestCase):
             with patch.object(pi, "load_route", return_value={"rotation": {"enabled": True}}), \
                     patch.object(accounts, "AccountPool", return_value=pool), patch.object(pi, "_run_pi_once", side_effect=invoke):
                 result = pi.run_pi("original", cwd=folder, output=root, model="chosen", effort="high",
-                                   auto_approve=True, skills=["selected"])
+                                   auto_approve=True, skills=["selected"], context_root=folder, reply_timeout=77)
             self.assertEqual(result["account_profile"], "two")
             self.assertIn("do not repeat", calls[1][0])
             self.assertEqual(calls[1][1]["conversation"], str(root/"session.jsonl"))
-            for key in ["model", "effort", "auto_approve", "skills"]:
+            for key in ["model", "effort", "auto_approve", "skills", "context_root", "reply_timeout"]:
                 self.assertEqual(calls[0][1][key], calls[1][1][key])
             pool.switch.assert_called_once_with("two")
             self.assertTrue(json.loads((root/"summary.json").read_text())["invocation_complete"])

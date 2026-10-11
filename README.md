@@ -6,7 +6,7 @@
 
 **搭配使用时，记得完整安装 Stop That Shit 和 Ponytail 两个插件。** 只安装本仓库，或只复制它们某一个 `SKILL.md`，都不等于装好了整套插件。安装命令见下文。
 
-2026-10-11：`agy-assist` 与 `agy-execution` 已迁移到 Pi + Antigravity ACP，支持主线程传入上下文摘要、Codex／Claude Skills 和精确会话续接；Windows 可选启用额度耗尽后的自动切号。安装与上游链接见下文。
+2026-10-11：`agy-assist` 与 `agy-execution` 已迁移到 Pi + Antigravity ACP，支持主线程传入上下文摘要、Codex／Claude Skills、精确会话续接和运行中的双向问答；可读项目 Wayfinder／Bench，Windows 可选启用额度耗尽后的自动切号。安装与上游链接见下文。
 
 2026-10-03：从 MyAgents 已审阅源码更新 `wayfinder`，将旧 `delegation-policy` 替换为 `codex-delegation` 和 `claude-delegation`。两个委派版本分别供 Codex 和 Claude Code 使用；模型路由由使用者的全局配置提供，未配置或工具无法表达时保留在主线程，不自动降级。
 
@@ -117,6 +117,17 @@ pi install npm:pi-antigravity-acp-provider@0.1.14
 完整配置、`agy-runner.json` 模板、上下文和 Skills 用法、权限及恢复边界见
 [Pi ACP 配置文档](skills/agy-execution/references/pi-setup.md)；
 [Assist 也附带独立副本](skills/agy-assist/references/pi-setup.md)，单独安装即可阅读。
+
+Execution 会读取工程规范和已有测试／CI 定义，先在任务范围内调查与修复，遇到未决
+冲突或真正阻塞再通过 `ask_primary` 主动找派发线程。主线程收到 `primary_request`
+事件后回复，原会话继续执行。两个技能都可用 `inspect_context` 读取指定项目的
+Wayfinder，并在配置 Bench 后查询同项目知识；没有这些入口时返回不可用。
+这需要派发线程保留运行句柄并等待事件，不能自动唤醒已结束的聊天。已有 CI/CD 不
+等于获得部署授权。协议、回复命令、超时与恢复见各技能正文及配置文档。
+
+已在 Windows 实测 Assist 同会话问答，以及 Execution 读取 Wayfinder、运行失败
+测试、询问规范冲突、按答复修复并通过测试的完整流程；分享版含 17 项离线回归测试。
+远端 CI/CD 部署不属于这次实测范围。
 
 | 组件 | 仓库／文档 |
 | --- | --- |
