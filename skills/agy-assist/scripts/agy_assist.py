@@ -84,9 +84,15 @@ def main(argv=None):
     parser.add_argument("--skill-reference", action="append", default=[], help="Selected UTF-8 reference inside a selected skill")
     parser.add_argument("--context-root", type=Path, default=Path.cwd(), help="Project root for scoped Wayfinder and Bench reads")
     parser.add_argument("--reply-timeout", type=float, default=900)
+    parser.add_argument("--background", action="store_true", help="Notify this Codex Desktop thread; requires human authorization to message it")
     parser.add_argument("--timeout", type=float, default=120, help="Active execution limit in seconds (default: 120)")
     options = parser.parse_args(argv)
     try:
+        if options.background:
+            from pi_background import launch
+            from pi_transport import load_route
+            print(json.dumps(launch(__file__, sys.argv[1:] if argv is None else argv, load_route()), ensure_ascii=False))
+            return 0
         prompt = make_prompt(options.prompt_file, options.input_file)
         schema = json.loads(read_text(options.schema)) if options.schema else None
         if options.schema and not isinstance(schema, (dict, bool)):

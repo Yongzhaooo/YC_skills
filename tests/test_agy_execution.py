@@ -102,7 +102,7 @@ class ExecutionTests(unittest.TestCase):
                 pi.run_pi("task", cwd=root, output=root/"invalid", text_only=True, auto_approve=True)
 
     def test_transport_copies_match_and_selected_skill(self):
-        for helper in ("pi_transport.py", "pi_accounts.py", "pi_cli_quota.ps1", "pi_dialogue.py", "primary_bridge.ts"):
+        for helper in ("pi_transport.py", "pi_accounts.py", "pi_cli_quota.ps1", "pi_dialogue.py", "pi_background.py", "primary_bridge.ts"):
             source = (SCRIPTS/helper).read_bytes()
             self.assertEqual(source, (ROOT/"skills/agy-assist/scripts"/helper).read_bytes())
         with tempfile.TemporaryDirectory() as folder:

@@ -42,10 +42,16 @@ def main():
     parser.add_argument("--skill", action="append", default=[], help="Selected installed skill name or SKILL.md path")
     parser.add_argument("--skill-reference", action="append", default=[], help="Selected UTF-8 reference inside a selected skill")
     parser.add_argument("--auto-approve", action="store_true", help="Requires explicit human authorization for this invocation")
+    parser.add_argument("--background", action="store_true", help="Notify this Codex Desktop thread; requires human authorization to message it")
     parser.add_argument("--reply-timeout", type=float, default=900, help="Seconds to wait for a primary reply; separate from active timeout")
     parser.add_argument("--timeout", type=float, help="Optional active execution limit in seconds")
     options = parser.parse_args()
     try:
+        if options.background:
+            from pi_background import launch
+            from pi_transport import load_route
+            print(json.dumps(launch(__file__, sys.argv[1:], load_route()), ensure_ascii=False))
+            return 0
         print(json.dumps(run(options), ensure_ascii=False))
         return 0
     except (OSError, ValueError, subprocess.SubprocessError, KeyboardInterrupt) as exc:

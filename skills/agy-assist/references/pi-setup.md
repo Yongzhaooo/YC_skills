@@ -167,8 +167,9 @@ Both runners emit newline-delimited JSON `primary_request` events while the proc
 is running. Use the exact event `run_dir` and `request_id` with `pi_dialogue.py --run
 <run-dir> --request <id> --answer-file <utf8-file>`. Keep waiting on the original process
 for the final envelope. Host integrations must surface intermediate stdout, not buffer
-everything until exit. No daemon, chat-message API or session-database reader is used.
-This cannot wake an already ended host chat. Interruption recovery is in SKILL.md.
+everything until exit. Foreground calls retain the host wait. The optional background
+worker below uses native thread messages to wake Codex; neither mode reads host session
+databases. Interruption recovery is in SKILL.md.
 
 `inspect_context` reads `docs/wayfinder.md` under Execution's `--cwd` or Assist's
 `--context-root`. For Bench, the selected root must contain `bench-project.json` with
@@ -185,3 +186,47 @@ truncation flags. Wayfinder reads at most 24,000 characters. For additional mate
 Execution follows source paths within its authorized scope; Assist asks the primary
 to supply it. No configured Bench or no Wayfinder is a supported unavailable result.
 This installs neither Bench nor credentials and never broadens a search globally.
+
+## Background wake in Codex Desktop
+
+`--background` starts a detached local worker and returns `job_dir` immediately.
+The original dispatch thread can end its turn. Question/completion/failure events
+call `send_message_to_thread` through the installed official `codex-app-tools` MCP
+server using standard MCP stdio. This is not a second Codex app-server instance and
+does not resume a second writer onto the host's session files. It does not change
+the thread model, poll an LLM, create a new task, or register a scheduled automation.
+
+Add the verified local server entry point and Node runtime to `agy-runner.json`:
+
+```json
+"codex_app_tools_command": ["/absolute/path/to/node", "/absolute/path/to/codex-app-tools/server.mjs"]
+```
+
+Use the installed official plugin's actual path; do not copy its source into this
+skill or modify its cache. The tested plugin is `codex-app-tools` 0.1.6. Its MCP
+catalog and dispatch-thread identity are checked before launch. A stale path or
+missing thread tools fails instead of selecting another chat. The original Codex
+Desktop environment must supply `CODEX_THREAD_ID` and `CODEX_APP_TOOLS_PIPE_PATH`;
+do not invent either. Other hosts keep using the foreground runner.
+
+```text
+python scripts/agy_assist.py --prompt-file task.txt --context-root <project> --background --reply-timeout 3600
+python scripts/agy_execution.py --cwd <project> --prompt-file task.txt --output-dir <new-run> --background --reply-timeout 3600
+python scripts/pi_background.py status <returned-job-dir>
+```
+
+Use this only with human authorization to notify the original dispatch thread.
+It does not authorize automatic tool approval. Job metadata and logs stay under
+`~/.pi/agent/agy-background-runs`, outside Git. `job.json` binds the original thread;
+`status.json` records lifecycle and final runner result; `notifications/` records
+each delivery attempt; the runner's own question/evidence files stay in its run.
+Reply using `pi_dialogue.py` and the notification's exact run/request. Replies never
+start a second executor; the existing Pi RPC call continues.
+
+Keep Codex open on the dispatch machine. App shutdown/restart, machine sleep or a
+lost pipe can prevent wakeup. An uncertain delivery is not retried automatically,
+to avoid duplicate prompts; inspect its record and the current request status before
+manual recovery. The worker is single-use and not a restart service. A question that
+exceeds its reply deadline remains recoverable through the exact saved Pi session.
+The account-store lock remains held during that wait; parallel managed AGY jobs are
+still unsupported. Reading `status.json` is not delivery acceptance.

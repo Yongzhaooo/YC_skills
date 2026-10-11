@@ -138,6 +138,7 @@ def converse(proc, prompt, events, *, output, session, timeout, context_root, ro
                     item["record"]["status"] = "answered"
                     save(item["folder"] / "request.json", item["record"])
                     del waiting[key]
+                    print(json.dumps({"event": "primary_answered", "request_id": key}, ensure_ascii=False), flush=True)
                 elif now - item["since"] > reply_timeout:
                     raise ValueError("Primary reply timed out; question and exact session retained")
             try:
