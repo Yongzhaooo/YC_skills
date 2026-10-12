@@ -1,5 +1,14 @@
 # Third-party notices
 
+## Original skills
+
+Written by the repository author; no third-party skill content:
+`repo-map`, `proposal-review`, `maintainer-review`, `product-spec`, `codex-delegation`,
+`claude-delegation`, `agy-assist`, `agy-execution`, `test-verification`,
+`bounded-filesystem-cleanup-safety`, `github-release-recovery`, `clean-action`.
+
+## Adapted skills
+
 The following skills are personally adapted from the MIT-licensed
 [mattpocock/skills](https://github.com/mattpocock/skills) repository:
 
@@ -19,8 +28,10 @@ dependencies, and separate authorization for human communication and financial a
 Its MIT license is retained in [LICENSE.superpowers](skills/plan-work/LICENSE.superpowers).
 
 These are adapted skills, not unmodified upstream snapshots. Sharing adaptations also
-omit personal deployment metadata. Ponytail and Stop That Shit are linked for separate
-installation; their plugin code is not bundled here.
+omit personal deployment metadata. Upstream changes are reviewed and merged selectively;
+when an adapted skill adopts newer upstream content, update its revision row above.
+Ponytail and Stop That Shit are linked for separate installation; their plugin code is
+not bundled here.
 
 ## mattpocock/skills license
 

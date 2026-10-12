@@ -1,0 +1,3 @@
+interface:
+  display_name: "Proposal Review"
+  short_description: "Review proposal reasoning and decision readiness"
