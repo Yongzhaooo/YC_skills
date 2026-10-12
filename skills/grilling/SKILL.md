@@ -26,7 +26,7 @@ questions in the round. Never repeat a question that has already been answered. 
 response arrives, pause the interview: silence or elapsed time is not an answer and
 never authorizes an external, destructive, or other consequential action.
 
-If a *fact* can be found by exploring the environment (filesystem, tools, etc.), look it up rather than asking me. Do the lookups in parallel where possible — do not block the round on a single lookup. The *decisions*, though, are mine — put each one to me; apply the partial-round rule above when I answer only some of them.
+If a *fact* can be found by exploring the environment (filesystem, tools, etc.), look it up rather than asking me. A running lookup is an unsettled prerequisite: only the questions that depend on it wait, and the rest of the frontier goes out now. The *decisions*, though, are mine — put each one to me; apply the partial-round rule above when I answer only some of them.
 
 Ground consequential choices in an observable outcome and one realistic failure or
 boundary case when it could change the answer. Keep confirmed decisions, defaults,

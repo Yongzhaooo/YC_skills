@@ -11,38 +11,19 @@ evidence of completion. Leave routine implementation details to the implementer.
 
 Reuse an existing request, issue, or specification when it already carries that
 information. A bounded change can be one work item with no new document. Detail follows
-risk, ambiguity, coupling, and recovery needs, not task count.
+risk, ambiguity, coupling, and recovery needs, not task count. A plan covers one change.
+The product's expected shape belongs to the project's product spec (`docs/product.md`
+when present): reference it, and when this change alters that shape, make updating the
+spec part of the work.
 
 Planning alone does not authorize implementation, remote issues, or Git history changes.
-Honor implementation authority already supplied by the user, subject to the separate
-communication and financial authorization below.
-
-## Separate execution from communication and financial authority
-
-Flag any work involving email, communication with people, or money. General execution
-authority — including "fully authorized", "do everything", or "全部授权" — does not
-authorize communication or financial actions. Do not turn these steps into ready-to-run
-work merely because the surrounding implementation is authorized.
-
-Within the authorized scope, finish research, analysis, drafts, calculations, and other
-reversible preparation so the user can review a concrete result. Before sending or
-replying to email, messaging people, posting comments, submitting a form to a person or
-organization, making commitments on the user's behalf, or changing financial state,
-require explicit user authorization for that specific action. Financial actions include
-purchases, payments, transfers, refunds, subscriptions, trades, and accepting prices or
-financial obligations, even through an automated service with no human recipient.
-
-The reviewable action must identify the recipient or destination, final content or
-commitment, and, where relevant, amount, currency, account, and terms. Record existing
-specific authorization and its limits; do not ask again when it already covers the exact
-action. Broad task approval, an approved plan, silence, and elapsed time are not substitutes.
-Material changes to the recipient, content, amount, or terms require renewed authorization.
-
-Put preparation and the external action in separate plan steps. Mark the latter as
-**awaiting specific user authorization**, with the concrete approval needed as its stop
-condition and release dependency. Keep independent authorized work moving. Preserve this
-boundary in every handoff, delegated task, scheduled job, and automation; another executor
-or tool does not acquire authority the plan owner lacks.
+Honor implementation authority already supplied by the user. Keep any step that
+communicates with people or changes financial state separate from its preparation. Record
+existing authorization that covers the exact action, with its limits; mark any uncovered
+step **awaiting specific user authorization**, naming the approval it needs (recipient or
+destination, content or commitment, and any amount and terms) as its stop condition and
+release dependency. Broad execution authority and an approved plan do not cover it, and
+the mark carries into every handoff, delegated task, and automation.
 
 ## Ground the plan
 
@@ -52,148 +33,105 @@ boundary. Record exact paths and useful symbols, marking proposed files as new.
 
 Resolve routine technical choices from that evidence. If a material product, public
 contract, compatibility, authority, or acceptance decision remains open, name it and the
-stages it blocks, and keep independent work ready; do not make an executor infer it. Label
-new design proposals separately from decisions settled by the user or an existing contract.
-When feasibility is the open question, use a bounded pilot instead of planning around an
-assumption.
+stages it blocks, and keep independent work ready. Label new design proposals separately
+from decisions settled by the user or an existing contract. When feasibility is the open
+question, use a bounded pilot instead of planning around an assumption.
 
 ## Record the decisions execution needs
 
-Extend the existing specification instead of creating a competing authority. Capture or
-reference the outcome, goals and non-goals, affected owners, settled decisions and preserved
-behavior, acceptance and failure behavior, fixed values and constraints, and material open
-decisions. Add migration, compatibility, security, performance, or rollback detail when the
-change reaches those concerns. Keep shared constraints in one place and give each
-requirement an owning item.
+Capture or reference the outcome, goals and non-goals, affected owners, settled decisions
+and preserved behavior, acceptance and failure behavior, fixed values and constraints,
+and material open decisions. Add migration, compatibility, security, performance, or
+rollback detail when the change reaches those concerns. Extend the existing specification
+instead of creating a competing authority, keep shared constraints in one place, and give
+each requirement an owning item. A saved plan uses the repository's established location
+and the user's requested format.
 
-When a saved plan is needed, use the repository's established location and the user's
-requested format; do not impose a separate specification or a length target.
-
-Preserve acceptance meaning when decomposing or revising requirements: the objects and
-cases covered, each/all quantifiers, deadlines and their starting events, required
-observations, failure outcomes, and recovery coverage. Replacing per-event checks with
-an end-state check, dropping a case, or changing a required assertion to record-only is
-a contract change, not an implementation detail. State the old and proposed guarantee,
-reason and affected items; resolve it within existing authority before treating the
-weaker guarantee as settled. Do not request approval for equivalent implementation choices.
-
-When execution conditions change, recheck the affected failure and recovery paths. For
-example, unattended operation, a reboot, or a changed management channel can invalidate
-a reused startup guard. Identify where protection starts and ends and whether recovery
-still works when the component under test fails; do not infer whole-run coverage from
-the existence of a rollback command.
+Preserve acceptance meaning through decomposition: covered cases, each/all quantifiers,
+deadlines and their starting events, required observations, and failure and recovery
+outcomes. Replacing per-event checks with an end-state check, dropping a case, or
+downgrading an assertion to record-only is a contract change: state the old and proposed
+guarantee, the reason, and the affected items, and settle it within existing authority. Equivalent implementation choices need
+no approval. When execution conditions change (unattended runs, reboots, a different
+management channel), recheck where protection starts and ends and whether recovery still
+works when the component under test fails.
 
 ## Define work items
 
 Split only when an item has its own observable outcome and independent acceptance, or a
 real producer/consumer boundary needs separate ownership. Prefer vertical behavior slices;
-fold setup, tests, and documentation into the result that needs them. Do not split work to
-fill agent slots.
+fold setup, tests, and documentation into the result that needs them. Agent capacity is
+not a reason to split.
 
-Each item covers five fields. A sentence or two per field is enough for an ordinary item.
-Add precision where risk or ambiguity would otherwise leave the executor guessing, such as
-exact inputs, failure behavior, or recovery checks for a data migration or security setting.
+Each item covers five fields, a sentence or two each for an ordinary item; add precision
+where risk would leave the executor guessing:
 
-1. **Outcome** — observable behavior or artifact, linked to its requirement.
-2. **Scope** — known create/modify/test paths, write ownership, preserved behavior, and
+1. **Outcome**: observable behavior or artifact, linked to its requirement.
+2. **Scope**: known create/modify/test paths, write ownership, preserved behavior, and
    relevant non-goals.
-3. **Steps** — ordered changes or bounded investigations. Name the approach where leaving
+3. **Steps**: ordered changes or bounded investigations. Name the approach where leaving
    it open would change a contract or invalidate another item.
-4. **Validation** — expected behavior or assertions, established by commands or
-   observations; name environments or data when they affect reproducibility.
-5. **Stop condition** — missing decisions, specific communication or financial
-   authorization, conflicting evidence, or scope changes that
-   pause dependent work and return to the plan owner. Ordinary check failures enter
-   authorized diagnosis and repair; they do not automatically require user approval.
+4. **Validation**: expected behavior or assertions and the commands or observations that
+   establish them; name environments or data when they affect reproducibility.
+5. **Stop condition**: missing decisions, pending specific authorization, conflicting
+   evidence, or scope changes that pause dependent work and return to the plan owner.
+   Ordinary check failures enter authorized diagnosis and repair.
 
 For a cross-item, public, persistent, shared-state, or security-sensitive contract, add
 **Interfaces**: producer, known consumers, exact names and signatures or data shape, fixed
-values, failure behavior, and the consumer-level proof for the join. Reference the contract
-where it is defined instead of repeating it.
+values, failure behavior, and the consumer-level proof for the join. Reference the
+contract where it is defined instead of repeating it.
 
-Replace placeholders such as "handle edge cases" or "add appropriate tests" with actual
-conditions and expected behavior; add a short input/output example when prose stays
-ambiguous. Write implementation bodies only when exact content must be preserved.
+Write actual conditions and expected behavior in place of placeholders such as "handle
+edge cases"; add a short input/output example when prose stays ambiguous. Write
+implementation bodies only when exact content must be preserved.
 
-## State parallel and sequential relationships
+## State dependencies
 
 Every multi-item plan states which items are ready now, which can run together, and what
-releases each pending item. Task order alone does not express a dependency. A simple
-relationship takes one sentence, for example: "A can start; B's implementation waits for
-A's output X; they cannot run in parallel." Use a table or graph when there are several
-dependencies or join points. When nothing can run in parallel, name the shared decision,
-output, or mutable state that forces sequencing.
+releases each pending item; task order alone does not express a dependency. Name what each
+waits on: a decision, another item's output, or a shared environment needed only for
+validation, with one owner for each combined check. A stable contract lets a consumer
+proceed before its producer finishes. Parallel items need settled shared interfaces and
+disjoint write ownership, including mutable state such as fixtures, databases, and
+services; separate checkouts do not isolate a shared service. When nothing can run in
+parallel, name what forces sequencing. A shared-contract change pauses only the items that
+consume it. Use a table only for several dependencies or joins. The plan describes
+feasible concurrency; execution capacity decides how much is used.
 
-Label each dependency by the stage it blocks:
+## Assign evidence
 
-- **Implementation** — needs an unresolved decision or upstream result. A stable contract
-  can let a consumer proceed before the producer finishes; name the contract and any test
-  double built on it.
-- **Validation** — work and local checks can proceed, but acceptance needs another item's
-  result or a shared environment. Name the combined check and its single owner.
-- **Submission or merge** — only publication or integration order; include it only when
-  that stage belongs to the authorized workflow.
+For each consequential acceptance claim, name its check and pass/fail rule, plus the
+smallest violating case the rule must reject while unrelated conditions stay healthy; a
+log or a test count is not this proof. For asynchronous or sampled observations, define a
+valid sample and the required coverage. Missing coverage stays unverified, not passed.
+For a defect, prefer a regression check that fails before the fix when practical, without
+imposing test-first order or per-item commits. Distinguish planned checks from commands
+actually run.
 
-Parallel items need settled shared interfaces, including binding names, and disjoint write
-ownership across files and mutable state such as fixtures, databases, and services.
-Separate checkouts do not isolate a shared service. Partition or sequence overlaps, name who
-settles a pending contract, and show serialized checks even when implementation runs in
-parallel. A change to a shared contract pauses only the affected items until their
-interfaces and dependencies are updated.
-
-The plan describes feasible concurrency; execution capacity decides how much is used.
-
-## Assign evidence once
-
-Distinguish planned checks from commands actually run and results observed. For a defect,
-prefer a regression check that fails before the fix when practical; do not force test-first
-sequencing or per-item commits on every change.
-
-For consequential acceptance claims, connect the source requirement to the observation
-and actual pass/fail rule (or its planned location). Include the smallest counterexample
-that violates the promise while unrelated conditions remain healthy; the rule must reject
-it. A log or a test count is not this proof. For asynchronous or sampled observations,
-define when a sample is valid and what coverage is required. Missing coverage stays
-unverified, not passed; difficulty observing a condition does not silently make it optional.
-
-The implementer owns changed tests and narrow checks. Use an independent verifier when risk,
-the plan, or the user requires it, with the smallest authoritative suite for the acceptance
-boundary; do not assign the same unchanged suite to every role. Reuse sufficient evidence,
-rerun affected checks after changes, and widen only when shared behavior or the acceptance contract
-requires it.
-
-When cross-session recovery would otherwise be lost, record accepted results, pending joins,
-and the next ready item in the plan or project record. Add other reports or process
-evidence only when the user or repository contract asks, naming paths and owners; do not
-create universal ledgers, capsules, hashes, or report gates.
+For multi-session execution, the plan records accepted results, pending joins, and the
+next ready item; a project map links to the plan instead of restating it. Add other
+reports or ledgers only when the user or repository asks.
 
 ## Check once, then hand off
 
-Before presenting, check requirement coverage, cross-item contract consistency, dependency
-cycles, and unowned joins, and fix gaps in place. This is one self-check, not a reviewer
-dispatch or an iterative gate.
-Compare work items with their source requirements, not only with one another. Keep this
-trace in existing items or references; no separate matrix or report is required.
-
-When clean-action is explicitly active, use it to consolidate the execution path after
-coverage and interfaces are settled. Delegation routes, handoff, and acceptance belong to
-the runtime's delegation skill (`codex-delegation` or `claude-delegation` on those hosts)
-at execution time; the plan supplies items and ownership
-boundaries, not models, agent counts, or per-item reviewers.
+Before presenting, check once that each source requirement has an owning item,
+cross-item contracts agree, and no dependency cycle or unowned join remains; fix gaps in
+place. This is a self-check, not a reviewer dispatch. The plan supplies items and
+ownership boundaries; models, agent counts, and reviewers belong to the runtime's
+delegation rules at execution time.
 
 For a planning-only request, present the plan and stop. If the user already authorized
-implementation and no material decision remains open, continue the authorized work without
-another approval round. Communication and financial actions still require the specific
-authorization defined above.
+implementation and no material decision remains open, continue without another approval
+round; steps awaiting specific authorization still wait.
 
 ## Lessons
 
-- Planning depth should follow decision and recovery risk, not task size alone.
+- Planning depth follows decision and recovery risk, not task size alone.
 - A ticket projects existing authority; it does not manufacture missing decisions.
-- Feasibility evidence belongs in a pilot, not a speculative specification.
-- An implementation request remains authorized when planning is a necessary intermediate step.
-- Planning detail is sufficient when the executor can implement without inventing key
-  requirements or shared contracts; brevity alone does not establish readiness.
 - A plan promised per-event checks while its execution specification checked only the
-  final state. Preserve acceptance semantics through decomposition and test a violating
-  case; internally consistent instructions and tests can still miss the original goal.
+  final state. Internally consistent instructions and tests can still miss the original
+  goal; test a violating case.
+- This skill grew by appending incident rules until planning, authorization,
+  verification, and delegation shared one file. Keep cross-cutting rules with their owner;
+  record an incident here as one Lesson unless the general rule changes.

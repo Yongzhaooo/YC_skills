@@ -6,6 +6,8 @@
 
 **搭配使用时，记得完整安装 Stop That Shit 和 Ponytail 两个插件。** 只安装本仓库，或只复制它们某一个 `SKILL.md`，都不等于装好了整套插件。安装命令见下文。
 
+2026-10-12：从 MyAgents `0d290ba` 同步规划工作流。新增 `product-spec`，用 `docs/product.md` 保存产品当前应有的行为；`plan-work` 负责一次变更的实施计划，`run-pilot` 停在试验证据，后续方向由用户或 Wayfinder 的路线复核决定。`wayfinder` 附带阅读预算检查脚本，安装 skill 不会自动注册 Agent hooks。
+
 2026-10-11：`agy-assist` 与 `agy-execution` 已迁移到 Pi + Antigravity ACP，支持主线程传入上下文摘要、Codex／Claude Skills、精确会话续接和运行中的双向问答；可读项目 Wayfinder／Bench，Windows 可选启用额度耗尽后的自动切号。安装与上游链接见下文。
 
 2026-10-03：从 MyAgents 已审阅源码更新 `wayfinder`，将旧 `delegation-policy` 替换为 `codex-delegation` 和 `claude-delegation`。两个委派版本分别供 Codex 和 Claude Code 使用；模型路由由使用者的全局配置提供，未配置或工具无法表达时保留在主线程，不自动降级。
@@ -18,7 +20,8 @@
 方案仍有关键未知 ────────> $grilling ──> $run-pilot（仅在可行性未证实时）
                          │
 恢复跨任务上下文 ─────────> $wayfinder
-方向已确定且需要留计划 ───> $plan-work
+产品预期已确定或改变 ─────> $product-spec
+一次变更需要实施计划 ─────> $plan-work
 实施 ──> 按运行时使用 $codex-delegation 或 $claude-delegation
          按需 $codebase-design ──> $test-verification
 审查指定变更 ────────────> $code-review
@@ -35,7 +38,8 @@
 | `github-release-recovery` | 标签、Actions artifact 和 GitHub Release 状态不一致或发布流程失败时，分层诊断并恢复可复现发布。 | `$github-release-recovery 检查这个 tag 为什么没有生成可下载的 Release。` |
 | `grilling` | 方案、边界或取舍尚未说清，希望以成批问题发现隐含假设。 | `$grilling 我想给 CLI 加离线缓存，帮我把决策和约束问清楚。` |
 | `run-pilot` | 在投入完整设计前，先做一个可回滚的小试验验证关键假设。 | `$run-pilot 用冻结的样本验证新的解析器能否达到准确率目标，不改生产入口。` |
-| `plan-work` | 方向已确定，需要写设计说明并拆成可验证的纵向工作项。 | `$plan-work 根据已确认的导入流程，写 spec 并拆成实施计划。` |
+| `product-spec` | 记录或更新产品当前应有的行为，保留未确认事项和范围边界。 | `$product-spec 根据已确认的产品行为，更新 docs/product.md。` |
+| `plan-work` | 一次变更的需求已确定，需要具体实施计划和验收依据。 | `$plan-work 根据已确认的导入流程，拆成实施计划并列出验收检查。` |
 | `codex-delegation` | Codex 派发、接续或验收有边界的子任务；主线程保留决策与整合。 | `$codex-delegation 划分这项迁移的并行写入边界，保留原始验收条件并定义回传证据。` |
 | `claude-delegation` | Claude Code 使用内置 Agent 工具委派有边界的工作，按全局配置路由。 | `在 Claude Code 中使用 claude-delegation，明确子任务归属、验收证据和主线程保留的决策。` |
 | `wayfinder` | 报告长期项目的结果、当前焦点、里程碑与恢复入口；状态查询保持只读。 | `$wayfinder 阅读项目的 wayfinder，说明目标进展、证据日期、阻塞和下一入口。` |
@@ -58,7 +62,7 @@
 ## 使用原则
 
 - 小而明确的任务直接完成，不为流程而流程化。
-- `grilling` 澄清决策；`run-pilot` 实现并验证一个有边界的试验，停在证据；`plan-work` 产出所需计划。技能本身不授权下一阶段，已有明确授权按任务范围执行。
+- `grilling` 澄清决策；`run-pilot` 实现并验证一个有边界的试验，停在证据；`product-spec` 记录产品预期；`plan-work` 产出一次变更的计划。技能本身不授权下一阶段，已有明确授权按任务范围执行。
 - 可行性未知时优先 `run-pilot`；方向已定时直接 `plan-work`。
 - 并行工作前按运行时使用 `codex-delegation` 或 `claude-delegation` 划分写入边界和验收证据；验证遵循项目自身的测试约定。
 
@@ -175,6 +179,17 @@ AGY 分享版取自 MyAgents `37c84eb`，保留 MIT 许可、
 python -m unittest discover -s tests -p "test_agy*.py"
 python -m unittest discover -s tests -p "test_pi*.py"
 ```
+
+## Wayfinder 阅读预算检查
+
+`wayfinder` 的检查脚本使用 Python 标准库，默认将 `docs/wayfinder.md` 与 Git HEAD 比较，检查超预算增长和新增日志内容：
+
+```text
+python skills/wayfinder/scripts/wayfinder_check.py docs/wayfinder.md
+python -m pytest tests/test_wayfinder_check.py
+```
+
+Agent hooks 需要由使用者在各自环境中配置；只安装技能不会自动启用 turn-end 检查。
 
 ## 另外完整安装 Stop That Shit 和 Ponytail
 

@@ -38,7 +38,9 @@ Board reads the outcome until the first blank line or heading.
 
 - `**Project outcome:**` — the durable result and what counts as done. For ongoing
   maintenance, state the service goal and the result this round can finish; do not
-  invent an end date for the whole project.
+  invent an end date for the whole project. When the project keeps a product spec
+  (`docs/product.md` or an equivalent authority), link its actual path here; the spec
+  holds the detailed expected shape.
 - `**Current answer:**` — a short summary of where the outcome stands: results reached,
   key gaps, what the claim rests on, and an as-of date where timing matters. It may link
   owning evidence directly rather than only the entries below.
@@ -63,8 +65,9 @@ Board reads the outcome until the first blank line or heading.
 Task entries carry resumption; Current answer and Milestones carry the overall judgment.
 Read legacy Destination, Live, Ready to pick up, and Blockers headings; classify affected
 entries when updating them. Monitoring-only Live items need a real Watching trigger.
-Record resumable work before recovery context can be lost. A pilot points to its
-pilot.md, which owns its lifecycle and result. Never clear a claim merely because an
+Record resumable work before recovery context can be lost. When an owner artifact (a
+pilot brief, a plan) keeps its own lifecycle, result, or resume point, the entry links
+to it instead of restating them. Never clear a claim merely because an
 app session is absent or time has passed; use owning evidence or an explicit decision.
 
 ## Report for the reader
@@ -94,7 +97,9 @@ When a task ends, a key assumption fails, an external dependency changes, or an 
 budget runs out, judge whether the stage is complete and whether the next step still
 makes sense. Judge a stage by its done condition and evidence, not by ticked tasks.
 If new evidence undermines the route, propose an evidence-based change instead of
-continuing the old plan mechanically.
+continuing the old plan mechanically. A pilot result is such a boundary: route its next
+step here. When a product spec exists, also check whether its expectations still hold and
+propose a spec update when they do not.
 
 When the current task is waiting, look for independent work that is already authorized
 and can advance; keep the waiting task's recovery point. Link settled choices to the
@@ -110,7 +115,8 @@ Choose only what the selected task's unresolved question needs:
 - Reasoning/clarity of a proposed approach: proposal-review.
 - Rigorous long-term architecture or subsystem design: maintainer-review, on design or patch.
 - Feasibility evidence: run-pilot when an experiment is authorized.
-- Durable planning or behavior specification of settled choices: plan-work.
+- The product's expected shape changed or needs writing down: product-spec.
+- A durable plan or change specification for settled choices: plan-work.
 - Existing patch: code-review; complexity alone: ponytail-review.
 - Sufficiently clear, already-authorized work: continue directly.
 
@@ -132,6 +138,14 @@ message or boot IDs, delivery receipts, command results, and dated history in th
 owner. A still-valid recovery baseline, such as a device's restore state, may stay even
 outside the standard sections. Clear blockers and claim completion only against the
 owning artifact's gates and evidence.
+
+The map has a reading budget: about 3000 estimated tokens unless the map declares
+`<!-- wayfinder-budget: N -->`. A change may not grow an over-budget map or paste logs,
+stack traces, or long code blocks into it. `scripts/wayfinder_check.py [path]` reports
+both against git HEAD; agent hooks run it at turn end against the map as the turn began.
+If a hook reports growth this turn did not make, say so and stop. When it blocks, compact
+by replacing entries and moving history to its owner or `docs/wayfinder-done.md`; do not
+raise the budget just to pass.
 
 Retain entries that enable a current recovery or selection decision. Remove superseded
 pointers after checking their owners, preserving unresolved claims. Prune Done once its

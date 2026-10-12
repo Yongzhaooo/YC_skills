@@ -66,23 +66,17 @@ dirty worktree. Preserve raw evidence before summarizing it. Do not weaken tests
 hard-code the expected verdict, or use the treatment output as its own answer key.
 
 Retry only infrastructure, transport, or schema-invalid executions, under the rule you
-pre-registered.
+pre-registered. A format or trivial protocol failure (control characters, field naming,
+line endings) is execution-invalid: fix the template or request and retry the same run
+under the same pilot ID, noting it in the existing brief without a new evidence receipt
+or a trial count. A new
+trial starts only when the hypothesis, model, or substantive protocol changes.
 
 - **Do not rerun a structurally valid result because it is disappointing.**
 - **Do not tune thresholds after revealing treatment results.**
 
 Stop when the budget or a hard-stop condition is reached. Update the selected brief
 after each meaningful state transition and at the final handoff.
-
-### Canary iteration rule
-
-When a canary or disposable pilot fails on format, schema, or trivial protocol issues
-(control characters, hash format, field naming, line-ending normalization), fix the
-template or request in place and retry the same run. Do not create a new pilot ID or
-evidence receipt for a format-only failure — start a new trial only when the hypothesis,
-model, or substantive protocol changes. Record the format failure in the Pilot Card or
-existing pilot directory, but do not let it multiply the iteration count: it is not a
-semantic result.
 
 ## Classify the result
 
@@ -102,8 +96,9 @@ A pilot result never by itself authorizes rollout, promotion, migration, a large
 experiment, a spec, tickets, or a commit. Do not edit the source spec to make it agree
 with the pilot — record the contradiction and propose a spec review instead.
 
-For `PASS`, recommend the smallest justified next action. `plan-work` is right only when
-durable contracts now need writing down; a second pilot is often the better next step.
+The pilot ends at the evidence. Choosing the next step is a route decision for the user or,
+when the project keeps a map, for its route reassessment. State only what the result
+implies for the hypothesis and which assumption it confirms or breaks.
 
 The final report states: hypothesis and result, what was implemented and where, the
 validation commands actually run and their outcomes, budget consumed, the exact stop
@@ -119,4 +114,4 @@ focused tests, and do not change the production entrypoint.
 - The brief must scale with recovery risk. A uniform full template for a single-turn
   check is burden without benefit; a resumable multi-session pilot needs every field.
 - Format-only canary failures were being recorded as trial evidence and inflating
-  iteration counts. They are not results — hence the canary iteration rule above.
+  iteration counts. They are execution-invalid runs, not results.
