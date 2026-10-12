@@ -38,6 +38,32 @@ to Antigravity. Require a final report of changed files, actual test commands an
 exits, evidence paths, failures, and unverified behavior. Do not prescribe every
 read or add progress artifacts without a task need.
 
+## Split the task and dispatch in parallel
+
+Before dispatch, the primary agent splits the outcome into independently verifiable
+work packages. Define each package's deliverable, file/module ownership, dependencies,
+shared interface assumptions, selected skills and acceptance check. Keep this brief
+in the assignments; do not create a separate planning system for a small task.
+
+Dispatch ready, independent packages in parallel by default. Start each runner and
+retain its yielded process or background handle, then launch the next ready package
+without waiting for the first to finish. Each package gets its own prompt, output
+directory and Pi session. This uses multiple AGY runner calls, not nested delegation
+inside AGY. Size concurrency to the user's resource limits and available capacity.
+
+Give each writable file one owner. Tell every executor that others are working in
+the repository, to preserve their edits and to stay within its ownership. Settle
+shared interfaces before parallel work; serialize dependent or overlapping edits,
+or use isolated worktrees when they materially avoid conflicts. Do not force a
+tightly coupled or small indivisible task into artificial parallel pieces; briefly
+state the dependency or ownership reason for using one executor.
+
+When a package finishes, independently check its result and release dependent work
+with the accepted interface/artifacts. A question or failure in one package must not
+stall unrelated ready work. The primary agent integrates the results, resolves
+cross-package conflicts and runs the relevant combined checks before accepting the
+whole task. Individual executor completion is not combined delivery acceptance.
+
 ## Hand off context from the primary host
 
 The primary agent in Codex or Claude prepares the relevant conversation summary
@@ -219,3 +245,5 @@ never reset others' work. Integrate or publish only within existing authorizatio
 - An explicit request to have AGY execute a task already authorizes its necessary
   edits, builds and tests. Do not turn the runner's `--auto-approve` flag into a
   second consent gate; carry the user's actual boundaries into the assignment.
+- Concurrency support must be used in dispatch: split by dependencies and ownership,
+  launch independent packages before waiting, then integrate and verify together.
