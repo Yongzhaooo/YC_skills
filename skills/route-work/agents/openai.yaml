@@ -1,0 +1,5 @@
+interface:
+  display_name: "Route Work"
+  short_description: "Name the next skill for your situation, then stop"
+policy:
+  allow_implicit_invocation: false

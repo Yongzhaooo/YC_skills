@@ -20,6 +20,7 @@
 ## 工作流 skills
 
 ```text
+不知从哪开始 ─> $route-work（给出下一步该调用的 skill，然后停下）
 理解 ─────> $repo-map（陌生或多文件代码库）
 澄清 ─────> $grilling ──> $run-pilot（仅在可行性未证实，停在证据）
             $proposal-review（审查一个已提出的方案）
@@ -62,6 +63,7 @@
 | `local-ci` | 原创 | 建立、运行与维护仓库本地 CI（单入口脚本、fast/full 分层、pass-stamp 避免重复运行、git hooks 与远程 CI 分工）。 | `$local-ci 检查或设置本地 CI 脚本与 pre-push 钩子，并在发布前运行完整验证。` |
 | `github-release-recovery` | 原创 | 标签、Actions artifact 和 GitHub Release 状态不一致或发布流程失败时，分层诊断并恢复可复现发布。 | `$github-release-recovery 检查这个 tag 为什么没有生成可下载的 Release。` |
 | `clean-action` | 原创 | 仅在用户明确调用时，压缩当前任务的执行路径并在完成后停止。 | `$clean-action 按最短可验证路径完成这个修复。` |
+| `route-work` | 贡献 | 仅在用户明确调用时，根据当前处境指出下一步该调用的 skill、后续路线和需要人决定的点，然后停下，不执行。概念参考 [ask-matt](https://www.aihero.dev/skills-ask-matt)。 | `$route-work 我要从零开始一个新项目，应该先用哪个？` |
 
 ## 语言
 
@@ -234,6 +236,8 @@ Stop That Shit 要按实际任务选择模式，例如 `$stop-that-shit review -
 本仓库以 MIT License 发布。MyAgents 是我的个人技能源仓库，这里是经过选择、去除部署元数据的公开分享版；更新从已审阅的源码整理，不直接镜像运行时目录。
 
 **原创**（我自己编写）：`repo-map`、`proposal-review`、`maintainer-review`、`product-spec`、`codex-delegation`、`claude-delegation`、`agy-assist`、`agy-execution`、`test-verification`、`bounded-filesystem-cleanup-safety`、`github-release-recovery`、`clean-action`。
+
+**贡献**（由其他贡献者编写，未复制第三方内容）：`route-work`。
 
 **改编**（借鉴并修改上游 MIT 许可内容）：
 

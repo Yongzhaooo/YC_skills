@@ -8,6 +8,12 @@ Written by the repository author; no third-party skill content:
 `test-verification`, `local-ci`, `bounded-filesystem-cleanup-safety`,
 `github-release-recovery`, `clean-action`.
 
+## Contributed skills
+
+`route-work` was written by a contributor for this repository. Its idea of an
+explicit-only router that names the next skill and stops is inspired by Matt Pocock's
+[ask-matt](https://www.aihero.dev/skills-ask-matt); no text from that skill is copied.
+
 ## Adapted skills
 
 The following skills are personally adapted from the MIT-licensed

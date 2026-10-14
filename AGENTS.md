@@ -18,6 +18,6 @@
 - 此仓库是 MyAgents 已审阅源码的精选分享版；更新时保留来源与许可证，去除个人部署元数据，不自动反向导入运行时文件。
 - Astra 等模型的适配状态和个人配置经验写在 README，技能正文保持模型无关；区分初步使用经验和系统评测结论。
 - 介绍 Ponytail 或 Stop That Shit 时，提醒从各自上游安装完整插件及其 hooks，不以某一个独立 skill 代替。
-- `README.md`（中文）与 `README.en.md`（英文）内容保持一致，修改一份时同步另一份。新增或移除 skill 时，同时更新两份 README 的分类（工作流／独立工具）与来源列，以及 `THIRD_PARTY_NOTICES.md`。
+- `README.md`（中文）与 `README.en.md`（英文）内容保持一致，修改一份时同步另一份。新增或移除 skill 时，同时更新两份 README 的分类（工作流／独立工具）与来源列，以及 `THIRD_PARTY_NOTICES.md`。新增、移除或改变某个 skill 的适用范围时，同步更新 `skills/route-work/SKILL.md` 中的路线与易混对照。
 - 改编的 skill 记录上游版本；采纳上游更新时审阅后合并，并更新 `THIRD_PARTY_NOTICES.md` 中的版本行。
 - 不提交任何公司内部代码、数据、系统名称细节或配置。
