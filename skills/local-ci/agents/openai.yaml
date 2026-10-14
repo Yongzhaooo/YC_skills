@@ -1,0 +1,3 @@
+interface:
+  display_name: "Local CI"
+  short_description: "Run and maintain local tiered CI, hooks, and pass stamp"

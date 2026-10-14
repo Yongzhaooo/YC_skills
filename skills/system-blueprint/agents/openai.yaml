@@ -1,0 +1,3 @@
+interface:
+  display_name: "System Blueprint"
+  short_description: "Target architecture and route for multi-stage work"

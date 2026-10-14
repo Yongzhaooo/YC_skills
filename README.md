@@ -21,9 +21,10 @@
 
 ```text
 理解 ─────> $repo-map（陌生或多文件代码库）
-澄清 ─────> $grilling ──> $run-pilot（仅在可行性未证实时，停在证据）
+澄清 ─────> $grilling ──> $run-pilot（仅在可行性未证实，停在证据）
             $proposal-review（审查一个已提出的方案）
 定义 ─────> $product-spec（产品预期确定或改变）
+蓝图 ─────> $system-blueprint（系统目标架构与跨阶段演进路线）
 计划 ─────> $plan-work（一次变更的实施计划与验收依据）
 实施 ─────> $codex-delegation / $claude-delegation / $agy-execution（按运行时与需要）
             按需参考 $codebase-design
@@ -39,6 +40,7 @@
 | 澄清 | `run-pilot` | 改编 | 在投入完整设计前，先做一个可回滚的小试验验证关键假设。 | `$run-pilot 用冻结的样本验证新的解析器能否达到准确率目标，不改生产入口。` |
 | 澄清 | `proposal-review` | 原创 | 审查 Agent 或自己提出的方案：推理是否成立、假设是否有依据、范围和下一步是否就绪。 | `$proposal-review 看看这个重试方案的推理和假设，能否进入实施。` |
 | 定义 | `product-spec` | 原创 | 记录或更新产品当前应有的行为，保留未确认事项和范围边界。 | `$product-spec 根据已确认的产品行为，更新 docs/product.md。` |
+| 蓝图 | `system-blueprint` | 原创 | 跨模块或多阶段演进、公共接口或持久化模型改变，需要目标架构与演进路线（docs/architecture.md）。 | `$system-blueprint 根据已确认的产品预期设计目标架构和阶段演进路线。` |
 | 计划 | `plan-work` | 改编 | 一次变更的需求已确定，需要具体实施计划和验收依据。 | `$plan-work 根据已确认的导入流程，拆成实施计划并列出验收检查。` |
 | 实施 | `codex-delegation` | 原创 | Codex 派发、接续或验收有边界的子任务；主线程保留决策与整合。 | `$codex-delegation 划分这项迁移的并行写入边界，保留原始验收条件并定义回传证据。` |
 | 实施 | `claude-delegation` | 原创 | Claude Code 使用内置 Agent 工具委派有边界的工作，按全局配置路由。 | `在 Claude Code 中使用 claude-delegation，明确子任务归属、验收证据和主线程保留的决策。` |
@@ -57,6 +59,7 @@
 | `agy-assist` | 原创 | 通过 Pi + Antigravity ACP 将有边界的阅读、润色、文本清洗或第二意见交给 Antigravity，由主 Agent 核验。 | `$agy-assist 阅读这份材料，列出有来源依据的结论和未确定事项。` |
 | `improve-codebase-architecture` | 改编 | 只审查架构摩擦，返回有证据的改进候选，不直接修改代码。 | `$improve-codebase-architecture 找出订单模块最值得先处理的结构性摩擦。` |
 | `bounded-filesystem-cleanup-safety` | 原创 | 清理会物理删除或破坏性移动文件、目录或不明确边界的数据。 | `$bounded-filesystem-cleanup-safety 检查这个清理范围是否可以安全执行。` |
+| `local-ci` | 原创 | 建立、运行与维护仓库本地 CI（单入口脚本、fast/full 分层、pass-stamp 避免重复运行、git hooks 与远程 CI 分工）。 | `$local-ci 检查或设置本地 CI 脚本与 pre-push 钩子，并在发布前运行完整验证。` |
 | `github-release-recovery` | 原创 | 标签、Actions artifact 和 GitHub Release 状态不一致或发布流程失败时，分层诊断并恢复可复现发布。 | `$github-release-recovery 检查这个 tag 为什么没有生成可下载的 Release。` |
 | `clean-action` | 原创 | 仅在用户明确调用时，压缩当前任务的执行路径并在完成后停止。 | `$clean-action 按最短可验证路径完成这个修复。` |
 
@@ -76,7 +79,7 @@ README 提供中文和[英文](README.en.md)两个版本，内容保持一致。
 ## 使用原则
 
 - 小而明确的任务直接完成，不为流程而流程化。
-- `grilling` 澄清决策；`run-pilot` 实现并验证一个有边界的试验，停在证据；`product-spec` 记录产品预期；`plan-work` 产出一次变更的计划。技能本身不授权下一阶段，已有明确授权按任务范围执行。
+- `grilling` 澄清决策；`run-pilot` 实现并验证一个有边界的试验，停在证据；`product-spec` 记录产品预期；`system-blueprint` 形成目标系统架构与演进路线；`plan-work` 产出一次变更的计划。技能本身不授权下一阶段，已有明确授权按任务范围执行。
 - 可行性未知时优先 `run-pilot`；方向已定时直接 `plan-work`。
 - 审查按对象选择：未实施的方案用 `proposal-review`，已有 diff 用 `code-review`，长期设计或补丁系列用 `maintainer-review`。
 - 并行工作前按运行时使用 `codex-delegation` 或 `claude-delegation` 划分写入边界和验收证据；验证遵循项目自身的测试约定。

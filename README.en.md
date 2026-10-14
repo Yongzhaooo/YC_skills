@@ -24,6 +24,7 @@ Understand ──> $repo-map (unfamiliar or multi-file codebase)
 Clarify ─────> $grilling ──> $run-pilot (only when feasibility is unproven; stops at evidence)
                $proposal-review (review an approach that has been proposed)
 Define ──────> $product-spec (product expectations settled or changed)
+Blueprint ───> $system-blueprint (target architecture and route for multi-stage work)
 Plan ────────> $plan-work (implementation plan and acceptance evidence for one change)
 Implement ───> $codex-delegation / $claude-delegation / $agy-execution (by runtime and need)
                consult $codebase-design as needed
@@ -39,6 +40,7 @@ Across sessions ─> $wayfinder (resume a long-running project) / $handoff (hand
 | Clarify | `run-pilot` | Adapted | Run a small, reversible experiment to test a key assumption before committing to a full design. | `$run-pilot Check on a frozen sample whether the new parser reaches the accuracy target, without touching the production entry point.` |
 | Clarify | `proposal-review` | Original | Review an approach proposed by an agent or by yourself: whether the reasoning holds, the assumptions are supported, and the scope and next step are ready. | `$proposal-review Check the reasoning and assumptions of this retry approach and whether it is ready to implement.` |
 | Define | `product-spec` | Original | Record or update how the product is currently expected to behave, keeping open questions and scope boundaries. | `$product-spec Update docs/product.md with the confirmed product behavior.` |
+| Blueprint | `system-blueprint` | Original | Work crosses modules/stages, changes public interfaces or data shapes; target architecture and route (docs/architecture.md). | `$system-blueprint Design target architecture and route from current product spec.` |
 | Plan | `plan-work` | Adapted | Requirements for one change are settled and it needs a concrete implementation plan and acceptance evidence. | `$plan-work Turn the confirmed import flow into an implementation plan with acceptance checks.` |
 | Implement | `codex-delegation` | Original | Codex dispatches, resumes, or accepts bounded subtasks while the main thread keeps decisions and integration. | `$codex-delegation Split this migration into parallel write scopes, keep the original acceptance criteria, and define the evidence to return.` |
 | Implement | `claude-delegation` | Original | Claude Code delegates bounded work through its built-in Agent tool, routed by global configuration. | `In Claude Code, use claude-delegation to define subtask ownership, acceptance evidence, and the decisions the main thread keeps.` |
@@ -57,6 +59,7 @@ Across sessions ─> $wayfinder (resume a long-running project) / $handoff (hand
 | `agy-assist` | Original | Send bounded reading, polishing, text cleanup, or a second opinion to Antigravity through Pi + Antigravity ACP; the main agent checks the result. | `$agy-assist Read this material and list the sourced conclusions and the open questions.` |
 | `improve-codebase-architecture` | Adapted | Review architectural friction only and return evidence-backed improvement candidates without changing code. | `$improve-codebase-architecture Find the structural friction in the order module that is most worth fixing first.` |
 | `bounded-filesystem-cleanup-safety` | Original | Cleanup that will physically delete or destructively move files, directories, or data with unclear boundaries. | `$bounded-filesystem-cleanup-safety Check whether this cleanup scope is safe to run.` |
+| `local-ci` | Original | Set up, run and maintain local CI: single entry script, fast/full tiers, pass-stamp to avoid duplicate runs, git hooks, and split with remote CI. | `$local-ci Check or set up local CI script and pre-push hook, then run full verification.` |
 | `github-release-recovery` | Original | Tags, Actions artifacts, and GitHub Releases disagree or the release workflow fails; diagnose layer by layer and restore a reproducible release. | `$github-release-recovery Find out why this tag did not produce a downloadable release.` |
 | `clean-action` | Original | Only when the user calls it explicitly: shorten the execution path of the current task and stop when done. | `$clean-action Finish this fix by the shortest verifiable path.` |
 
@@ -76,7 +79,7 @@ These reflect my current practice. Available models, tools, and permissions depe
 ## Principles
 
 - Do small, clear tasks directly; do not add process for its own sake.
-- `grilling` clarifies decisions; `run-pilot` builds and checks one bounded experiment and stops at the evidence; `product-spec` records product expectations; `plan-work` produces the plan for one change. A skill does not authorize the next stage by itself; existing explicit authorization applies within the task's scope.
+- `grilling` clarifies decisions; `run-pilot` builds and checks one bounded experiment and stops at the evidence; `product-spec` records product expectations; `system-blueprint` establishes the target architecture and route; `plan-work` produces the plan for one change. A skill does not authorize the next stage by itself; existing explicit authorization applies within the task's scope.
 - When feasibility is unknown, start with `run-pilot`; when the direction is settled, go straight to `plan-work`.
 - Pick the review by its subject: `proposal-review` for an unimplemented approach, `code-review` for an existing diff, `maintainer-review` for long-term design or a patch series.
 - Before parallel work, use `codex-delegation` or `claude-delegation` (by runtime) to set write scopes and acceptance evidence; verification follows the project's own test conventions.

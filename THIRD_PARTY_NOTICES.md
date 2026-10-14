@@ -3,9 +3,10 @@
 ## Original skills
 
 Written by the repository author; no third-party skill content:
-`repo-map`, `proposal-review`, `maintainer-review`, `product-spec`, `codex-delegation`,
-`claude-delegation`, `agy-assist`, `agy-execution`, `test-verification`,
-`bounded-filesystem-cleanup-safety`, `github-release-recovery`, `clean-action`.
+`repo-map`, `proposal-review`, `maintainer-review`, `product-spec`, `system-blueprint`,
+`codex-delegation`, `claude-delegation`, `agy-assist`, `agy-execution`,
+`test-verification`, `local-ci`, `bounded-filesystem-cleanup-safety`,
+`github-release-recovery`, `clean-action`.
 
 ## Adapted skills
 
