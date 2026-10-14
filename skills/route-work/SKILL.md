@@ -33,19 +33,25 @@ and the description cannot decide between them.
 **New project (0 → 1).**
 `grilling` to settle goals, users, non-goals and constraints → `run-pilot` only for an
 assumption whose failure would change the plan → `product-spec` to write the expected
-shape → `wayfinder` to open the map when the work will span several sessions →
-`plan-work` for the first thin end-to-end slice → implement → `test-verification` →
-`code-review` → back to `wayfinder`; plan the next slice, or revise `product-spec` when
-the expected shape changes. A short-lived tool skips `product-spec` and `wayfinder`.
+shape → `system-blueprint` for the target architecture and milestones when the work
+spans modules or stages → `wayfinder` to open the map when the work will span several
+sessions → `plan-work` for the first thin end-to-end slice → implement →
+`test-verification` → `code-review` → back to `wayfinder`; plan the next slice, or revise
+`product-spec` or `system-blueprint` when the shape or the route changes. Add `local-ci`
+once the checks are slow enough to run before every push. A short-lived tool skips
+`product-spec`, `system-blueprint` and `wayfinder`.
 
 **Change in an existing codebase.**
 `repo-map` when the entry point or change boundary is unclear → `grilling` if decisions
-are open → `plan-work` when the change needs a durable plan or another executor →
+are open → `system-blueprint` when the change crosses modules or changes an interface,
+data shape or deployment shape → `plan-work` when the change needs a durable plan or
+another executor →
 implement → `test-verification` → `code-review`.
 
 **Bug or failing check.**
 `repo-map` if the failure site is unknown → fix → `test-verification`, which also covers
-CI triage. Feasibility doubts about the fix go to `run-pilot` first.
+remote CI triage. A failing local CI script or pre-push hook goes to `local-ci`.
+Feasibility doubts about the fix go to `run-pilot` first.
 
 **Resume or hand over.**
 Returning to long work: `wayfinder`. Leaving work for another agent or session: `handoff`.
@@ -54,7 +60,8 @@ Returning to long work: `wayfinder`. Leaving work for another agent or session: 
 `improve-codebase-architecture` to find friction → `codebase-design` as the criteria for
 the chosen candidate → `plan-work` if the refactor is non-trivial.
 
-**Standalone.** `bounded-filesystem-cleanup-safety` before destructive cleanup;
+**Standalone.** `local-ci` to set up or change a local CI script and hooks;
+`bounded-filesystem-cleanup-safety` before destructive cleanup;
 `github-release-recovery` when a tag and its Release disagree; `agy-assist` for bounded
 reading, polishing or a second opinion; `clean-action` only on explicit request.
 
@@ -64,16 +71,17 @@ reading, polishing or a second opinion; `clean-action` only on explicit request.
 | --- | --- |
 | `grilling` / `run-pilot` | Is the open question a decision (grill) or a fact that needs evidence (pilot)? |
 | `run-pilot` / `plan-work` | Unknown whether it can work: pilot. Direction settled: plan. |
-| `product-spec` / `plan-work` / `wayfinder` | What the product should be / how one change gets made / where the work stands. |
+| `product-spec` / `system-blueprint` / `plan-work` / `wayfinder` | What the product should be / how the system is built to get there / how one change gets made / where the work stands. |
+| `test-verification` / `local-ci` | Which checks this change needs / the project's local CI pipeline, its hooks and its failures. |
 | `proposal-review` / `code-review` / `maintainer-review` | Unimplemented approach / an existing diff / long-term design of a subsystem or patch series. |
 | `codex-delegation` / `claude-delegation` / `agy-execution` | Pick by runtime: Codex subagents / Claude Code Agent tool / Pi + Antigravity. `agy-execution` needs the user to ask for AGY. |
 | `agy-assist` / `agy-execution` | Text only / implementation and tests. |
-| `codebase-design` / `improve-codebase-architecture` | Criteria for a boundary you are designing / a scan for where friction is. |
+| `codebase-design` / `improve-codebase-architecture` / `system-blueprint` | Criteria for one boundary / a scan for where friction is / the target structure and route for the whole change. |
 
 ## Human decisions
 
 Mark these on every route that reaches them: what the product should be and what is out
-of scope; accepting a pilot result and choosing the next route; approving a plan before
+of scope; accepting a pilot result and choosing the next route; approving a blueprint or a plan before
 implementation; accepting a delivery; anything outward-facing, destructive, or financial.
 
 ## Session advice
@@ -82,7 +90,7 @@ At a phase boundary (pilot done, plan accepted, slice delivered), choose the fir
 
 1. **Continue** when the next step needs the context already loaded.
 2. **Fresh session** when the next step needs little of it and the durable state lives in
-   files (`docs/product.md`, the plan, `docs/wayfinder.md`).
+   files (`docs/product.md`, `docs/architecture.md`, the plan, `docs/wayfinder.md`).
 3. **`handoff`** when another agent continues or the state is not yet in files.
 4. **Delegate** a bounded subtask with the runtime's delegation skill when the main
    thread should keep its context for decisions.
