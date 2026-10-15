@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "project": "YC_skills",
+  "documents": [
+    {
+      "id": "sync-readme",
+      "path": "README.md",
+      "category": "knowledge",
+      "role": "topic",
+      "topics": [
+        "project-progress"
+      ]
+    }
+  ],
+  "withdrawn_documents": []
+}
