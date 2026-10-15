@@ -8,7 +8,7 @@ Last confirmed: not yet confirmed
 
 向其他开发者分享一组轻量、可独立使用的 Agent 工作流 skills：帮助 Codex、Claude Code、OpenCode 等 Agent 在复杂任务中定位、澄清、试验、规划、委派、验证与审查；小而明确的任务仍直接完成。这是个人分享，不是公司官方项目。（README 已陈述）
 
-**与 MyAgents 的关系**：本仓库是个人源码仓库 MyAgents 已审阅 skills 的精选公开副本（AGENTS.md 已陈述）。目前 22 个 skill 中约 20 个与 MyAgents 同名（`agy-assist`/`agy-execution` 在 MyAgents 中为 `pi-agy-*`，`claude-delegation` 在 MyAgents 无同名 skill），其中 19 个 `SKILL.md` 与 MyAgents 副本字节不同。两者内容重叠且存在漂移；MyAgents 为权威，本仓库只读消费。
+**与 MyAgents 的关系**：本仓库是个人源码仓库 MyAgents 已审阅 skills 的精选公开副本（AGENTS.md 已陈述）。目前 22 个 skill 中约 20 个与 MyAgents 同名（`agy-assist`/`agy-execution` 在 MyAgents 中为 `pi-agy-*`，`claude-delegation` 在 MyAgents 无同名 skill），2026-10-15 对比：11 个仅差 MyAgents 私有 frontmatter，约 9 个有正文差异（详见 architecture.md）。两者内容重叠且存在漂移；MyAgents 为权威，本仓库只读消费。
 
 ## Expectations
 
@@ -37,6 +37,6 @@ Last confirmed: not yet confirmed
 ## Open questions
 
 - 本仓库与 MyAgents 的同步由谁、何时、如何做（手工 / 脚本），以及如何发现漂移；blocks：判断公开版是否过期。
-- 19 个字节差异中哪些是有意的去标识，哪些是 MyAgents 后续更新未同步；blocks：下一次发布。
+- 约 9 个正文差异中哪些是有意的去标识，哪些是 MyAgents 后续更新未同步；blocks：下一次发布。
 - 仓库是否需要自己的 wayfinder；blocks：跨会话恢复。
 - 本文整体预期待用户确认；不授权实现或发布。

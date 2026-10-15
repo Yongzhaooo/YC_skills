@@ -9,7 +9,7 @@ Product spec: [product.md](product.md)
 - **`tests/`**：`agy-assist`、`agy-execution`（含 Pi 账号、后台、对话）与 `wayfinder` 检查脚本的离线测试，使用 `unittest` / `pytest`，不调用模型。
 - **发布面**：`README.md`、`README.en.md`（内容一致）、`THIRD_PARTY_NOTICES.md`、`LICENSE`（MIT）。分类与来源列在 README 中维护。
 - **State ownership**：skill 内容的权威在 MyAgents（源码仓库）；本仓库只拥有"选择了哪些 skill、去标识后的公开文本、README 与来源声明"。安装后的运行时副本归使用者。
-- **与 MyAgents 的重叠（明确）**：`skills/` 中约 20 个 skill 与 MyAgents `skills/shared`、`skills/codex` 同名，AGY 两项对应 MyAgents 的 `pi-agy-*`。这是有意的"精选公开副本"，不是第二个源码权威；但当前没有机制检查漂移（19 个 SKILL.md 与 MyAgents 字节不同）。
+- **与 MyAgents 的重叠（明确）**：`skills/` 中约 20 个 skill 与 MyAgents `skills/shared`、`skills/codex` 同名，AGY 两项对应 MyAgents 的 `pi-agy-*`。这是有意的"精选公开副本"，不是第二个源码权威；但当前没有机制检查漂移。2026-10-15 对比（忽略换行）：20 个同名 SKILL.md 中 11 个仅差 MyAgents 私有 frontmatter（`targets`/`install_mode`），约 9 个有正文差异（bounded-filesystem-cleanup-safety、local-ci、plan-work、wayfinder、maintainer-review、claude-delegation、handoff、codebase-design、codex-delegation）。
 - 数据流（proposed 的形式化）：MyAgents 已审阅源码 → 人工精选与去标识 → 本仓库 → `npx skills add` → 使用者运行时。反向无自动流。
 
 ## Approach
